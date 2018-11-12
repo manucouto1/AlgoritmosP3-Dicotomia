@@ -16,7 +16,7 @@
 #define NUM_ALGORITHEMS 2
 
 // Algoritmo Ordenacion
-#define UMBRAL 1
+#define UMBRAL 10
 
 typedef int pos;
 
@@ -34,6 +34,7 @@ typedef struct {
 } item;
 
 /* Registros DICOTOMIA */
+
 typedef struct {
 	char name[256];
 	int isComplex;
@@ -42,7 +43,7 @@ typedef struct {
 
 typedef  struct {
 	funcion cota;
-	double aux;
+	double exp;
 }cota_t;
 
 typedef struct {
@@ -66,10 +67,11 @@ typedef struct {
 	int fin;
 	int mult;
 	int nTemp;
-	void (*func)(int v[], int nargs);
+	void (*func)(int v[], int nargs, int punto);
 	char alg_name[256];
 } alg_dico;
 
+double execute(funcion op , int n, double exp, int derivada);
 /* FIN REGISTROS DICOTOMIA  */
 
 int dispersionA(char *clave, int tamTabla) {
@@ -238,60 +240,76 @@ void descendente (int v[], int n){
 /*  */
 
 
-/*Algoritmos de ordenación*/
 
-void ord_ins (int v [], int n) {
-	int i, j, x;
+/*Algoritmos de ordenación*/
+void interCambioCotas(cota_t *cota1, cota_t *cota2){
+	cota1->exp = cota2->exp;
+	cota1->cota.isComplex = cota2->cota.isComplex;
+	cota1->cota.index = cota2->cota.index;
+	strcpy(cota1->cota.name, cota2->cota.name);
+}
+
+void ord_ins (cota_t v[], int n, int punto) {
+	int i, j;
+	cota_t cotaAux;
+	double valorCotaAux;
+
 	for (i=1; i<n; i++) {
-		x = v[i];
+		interCambioCotas(&cotaAux, &v[i]);
+		valorCotaAux = execute(v[i].cota,punto,v[i].exp,1);
 		j = i-1;
-		while (j>=0 && v[j]>x) {
-			v[j+1] = v[j];;
+		while (j>=0 && execute(v[j].cota,punto,v[j].exp,1)>valorCotaAux) {
+			interCambioCotas(&v[j+1],&v[j]);
 			j--;
 		}
-		v[j+1] = x;
+		interCambioCotas(&v[j+1],&cotaAux);
 	}
 }
 
-void intercambiar (int* i, int* j) {
-	int aux;
+void intercambiar (cota_t* i, cota_t* j) {
+	cota_t aux;
 	aux = *i;
 	*i = *j;
 	*j = aux;
 }
 
-void Mediana3(int v[], int i, int j) {
+void Mediana3(cota_t *v, int i, int j, int n) {
 	int k;
 	k = (i + j)/2;
 
-	if (v[k] > v[j]) {
+	double valK = execute(v[k].cota , n, v[k].exp, 1);
+	double valJ = execute(v[j].cota , n, v[j].exp, 1);
+	double valI = execute(v[i].cota , n, v[i].exp, 1);
+
+	if (valK > valJ) {
 		intercambiar(&v[k], &v[j]);
 	}
-	if (v[k] > v[i]) {
+	if (valK > valI) {
 		intercambiar(&v[k],&v[i]);
 	}
-	if (v[i] > v[j]) {
+	if (valI > valJ) {
 		intercambiar(&v[i], &v[j]);
 	}
 }
 
-void OrdenarAux(int v[], int izq, int der) {
-	int pivote, i, j;
+void OrdenarAux(cota_t *v, int izq, int der, int n) {
+	double pivote;
+	int i, j;
 
 	if ((izq + UMBRAL) <= der) {
-		Mediana3(v, izq, der);
+		Mediana3(v, izq, der, n);
 
-		pivote = v[izq];
+		pivote = execute(v[izq].cota,n,v[izq].exp,1);
 		i = izq;
 		j = der;
 
 		while (j>i) {
 			i++;
-			while (v[i] < pivote) {
+			while (execute(v[i].cota,n,v[i].exp,1)< pivote) {
 				i++;
 			}
 			j--;
-			while (v[j] > pivote) {
+			while (execute(v[j].cota,n,v[j].exp,1) > pivote) {
 				j--;
 			}
 			intercambiar(&v[i], &v[j]);
@@ -299,15 +317,15 @@ void OrdenarAux(int v[], int izq, int der) {
 
 		intercambiar(&v[i], &v[j]);
 		intercambiar(&v[izq], &v[j]);
-		OrdenarAux(v, izq, j-1);
-		OrdenarAux(v, j+1, der);
+		OrdenarAux(v, izq, j-1, n);
+		OrdenarAux(v, j+1, der, n);
 	}
 }
 
-void ord_rapida(int v[], int n) {
-	OrdenarAux(v, 0, n-1);
+void ord_rapida(cota_t *v, int n, int punto) {
+	OrdenarAux(v, 0, n-1, punto);
 	if (UMBRAL > 1){
-		ord_ins(v, n);
+		ord_ins(v, n, punto);
 	}
 }
 
@@ -379,12 +397,18 @@ sit_dico initStudyCase(char name[], void (*ini)(int [], int)){
 	return caso;
 }
 
-alg_dico initAlgorithem(char name[], void (*func)(int [], int), sit_dico sitDico[]){
+alg_dico initAlgorithem(char name[], void (*func)(int [], int, int), sit_dico sitDico[], int ini, int mult,
+		int fin, int nTemp){
+
 	int i;
 	alg_dico algoritmo;
 
 	strcpy(algoritmo.alg_name, name);
 	algoritmo.func = func;
+	algoritmo.ini = ini;
+	algoritmo.mult = mult;
+	algoritmo.fin = fin;
+	algoritmo.nTemp = nTemp;
 
 	for(i = 0; i<NUM_SITUATIONS; i++)
 		algoritmo.situation[i] = sitDico[i];
@@ -393,32 +417,14 @@ alg_dico initAlgorithem(char name[], void (*func)(int [], int), sit_dico sitDico
 }
 
 /*
- * TODO - inicialización del los algoritmos de los que realizaremos el estudio
- */
-alg_dico initAlgorithems(alg_dico *algoritmos){
-
-	// Esta parte la cambiariamos para cada problema a estudiar,
-	// por ejemplo si no hace falta ordenar no habria estas funciones
-	sit_dico situations[NUM_SITUATIONS] = {
-			initStudyCase("aleatorio", aleatorio),
-			initStudyCase("ascendente",ascendente),
-			initStudyCase("descendente", descendente)
-	};
-
-	alg_dico aux [NUM_ALGORITHEMS] = {
-			initAlgorithem("inserción",ord_ins , situations),
-			initAlgorithem("rápida", ord_rapida, situations)
-	};
-
-	memcpy(algoritmos, aux, NUM_ALGORITHEMS * sizeof(alg_dico));
-}
-
-/*
  * TODO - inicializa las cotas, para ello tiene que crearlas usando las funciones y habrá que ordenarlas
  */
 void initCotas(funcion funcs[], cota_t *cotas, int *nCotas) {
 	int i;
 	double j;
+	char *token1;
+	char *token2;
+	char aux[256];
 
 	*nCotas = 0;
 
@@ -428,13 +434,22 @@ void initCotas(funcion funcs[], cota_t *cotas, int *nCotas) {
 			j = 1.1;
 			while(j < 3.0){
 				cotas[*nCotas].cota = funcs[i];
-				cotas[*nCotas].aux = j;
+				cotas[*nCotas].exp = j;
+				token1 = strtok(cotas[*nCotas].cota.name,"$");
+				token2 = strtok(NULL,"$");
+				if(token2 != NULL) {
+					sprintf(aux, "%s%2.1f%s", token1, cotas[*nCotas].exp, token2);
+					strcpy(cotas[*nCotas].cota.name, aux);
+				} else {
+					sprintf(aux, "%s%2.1f", token1, cotas[*nCotas].exp);
+					strcpy(cotas[*nCotas].cota.name, aux);
+				}
 				j = j + 0.1;
 				(*nCotas)++;
 			}
 		} else {
 			cotas[*nCotas].cota = funcs[i];
-			cotas[*nCotas].aux = 0;
+			cotas[*nCotas].exp = 0;
 			(*nCotas)++;
 		}
 	}
@@ -446,26 +461,46 @@ void initCotas(funcion funcs[], cota_t *cotas, int *nCotas) {
  * al ser crecientes y al no tener puntos de inflexión debería llegar con ver la derivada en el punto inicial
  * si una función tiene mas pendiente cerca del punto inicial tendría que estar siempre por encima
  */
-void sortCotas(cota_t *cotas, int nCotas) {
-
+void sortCotas(cota_t *cotas, int nCotas, int punto) {
+	ord_ins(cotas,nCotas,punto);
 }
 
 void printCotas(cota_t *cotas, int nCotas){
 	int i = 0;
-	char *token1;
-	char *token2;
 
 	for(i = 0; i < nCotas; i++){
-		if(cotas[i].cota.isComplex) {
-			token1 = strtok(cotas[i].cota.name,"$");
-			token2 = strtok(NULL,"$");
-			if(token2 != NULL)
-				printf("Cota %d función %s%2.1f%s\n", i, token1, cotas[i].aux, token2);
-			else
-				printf("Cota %d función %s%2.1f\n", i, token1, cotas[i].aux);
-		} else
-			printf("Cota %d función %s\n",i,cotas[i].cota.name);
+		printf("Cota %d función %s\n",i,cotas[i].cota.name);
 	}
+}
+
+void printDerivInPoint(cota_t *cotas, int nCotas, int point){
+
+	int i;
+
+	for(i=0; i<nCotas; i++){
+		printf(" %f,", execute(cotas[i].cota,point,cotas[i].exp,1));
+	}
+	printf("\n");
+}
+
+/*
+ * DONE - inicialización del los algoritmos de los que realizaremos el estudio
+ */
+alg_dico initAlgorithems(alg_dico *algoritmos){
+	// Esta parte la cambiariamos para cada problema a estudiar,
+	// por ejemplo si no hace falta ordenar no habria estas funciones
+	sit_dico situations[NUM_SITUATIONS] = {
+			initStudyCase("aleatorio", aleatorio),
+			initStudyCase("ascendente",ascendente),
+			initStudyCase("descendente", descendente)
+	};
+
+	alg_dico aux [NUM_ALGORITHEMS] = {
+			initAlgorithem("inserción",ord_ins , situations, 500, 2, 32000, 7),
+			initAlgorithem("rápida", ord_rapida, situations, 1000, (int) pow(10,8), 10, 6)
+	};
+
+	memcpy(algoritmos, aux, NUM_ALGORITHEMS * sizeof(alg_dico));
 }
 
 int main() {
@@ -486,7 +521,9 @@ int main() {
 
 	// Ordenamos las Posibles Cotas basándonos en la pendiente de las funciones en un punto
 	// representativo del intervalo en el que se realiza el estudio
-	sortCotas(cotasEstudio, nCotas);
+	// printDerivInPoint(cotasEstudio, nCotas, 20000);
+	sortCotas(cotasEstudio, nCotas, 20000);
+
 	printCotas(cotasEstudio, nCotas);
 
 	//medirTiempos();
@@ -497,6 +534,6 @@ int main() {
 	//tabla_cerrada d = malloc (MAX_N * sizeof(entrada));
 
 
-
+	free(cotasEstudio);
 	return 0;
 }
