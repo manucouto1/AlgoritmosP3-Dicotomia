@@ -25,6 +25,7 @@ void ord_ins_dico (cota_t v[], int n, int punto) {
 	}
 }
 
+// TODO IMPLEMENTAR ORDENACION RAPIDA DE COTAS
 void intercambiar_dico (cota_t* i, cota_t* j) {
 	cota_t aux;
 	aux = *i;
@@ -32,7 +33,6 @@ void intercambiar_dico (cota_t* i, cota_t* j) {
 	*j = aux;
 }
 
-// TODO IMPLEMENTAR ORDENACION RAPIDA DE COTAS
 void Mediana3_dico(cota_t *v, int i, int j, int n) {
 	int k;
 	k = (i + j)/2;
@@ -88,16 +88,16 @@ void ord_rapida_dico(cota_t *v, int n, int punto) {
 		ord_ins_dico(v, n, punto);
 	}
 }
+//
 
-/* */
-sit_dico initStudyCase(char name[], void (*ini)(int [], int)){
+sit_dico initStudyCase(char *name, void (*ini)(int [], int)){
 	sit_dico caso;
-	strcmp(caso.sit_name, name);
+	strcpy(caso.sit_name, name);
 	caso.func = ini;
 	return caso;
 }
 
-alg_dico initAlgorithem(char name[], void (*func)(int [], int), sit_dico sitDico[], int ini, int mult,
+alg_dico initAlgorithem(char *name, void (*func)(int [], int), sit_dico *sitDico, int ini, int mult,
                         int fin, int nTemp){
 	int i;
 	alg_dico algoritmo;
@@ -113,6 +113,29 @@ alg_dico initAlgorithem(char name[], void (*func)(int [], int), sit_dico sitDico
 		algoritmo.situation[i] = sitDico[i];
 
 	return algoritmo;
+}
+
+void printAlgorithemSituation(alg_dico *algoritmos){
+
+	int i,j;
+
+	for(i=0; i<NUM_ALGORITHEMS; i++){
+		printf("\t - %s - tamaño vector de %d a %d de %d en %d\n", algoritmos[i].alg_name,algoritmos[i].ini,algoritmos[i].fin, algoritmos[i].mult,algoritmos[i].mult);
+		for(j=0; j<NUM_SITUATIONS; j++){
+			printf("\t\t * situacion %s \n",algoritmos[i].situation[j].sit_name);
+		}
+	}
+	printf("\n");
+}
+
+
+void printFuncs(funcion *funcs){
+	int i;
+
+	for(i = 0; i < NUM_FUNCT; i++){
+		printf("\t - index %d - %s with exponent? %d \n", funcs[i].index, funcs[i].name, funcs[i].isComplex);
+	}
+	printf("\n");
 }
 
 /*
@@ -174,7 +197,8 @@ void printCotas(cota_t *cotas, int nCotas){
 	int i = 0;
 
 	for(i = 0; i < nCotas; i++){
-		printf("Cota %d función %s\n",i,cotas[i].cota.name);
+		printf("\t - Cota %d función %s\n",i,cotas[i].cota.name);
 	}
+
 	printf("\n");
 }

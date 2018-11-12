@@ -287,9 +287,9 @@ alg_dico initAlgorithems(alg_dico *algoritmos){
 	printf(" - Inicializando Algoritmos \n");
 	printf(" ************************************ \n");
 	sit_dico situations[NUM_SITUATIONS] = {
-			initStudyCase("aleatorio", aleatorio),
-			initStudyCase("ascendente",ascendente),
-			initStudyCase("descendente", descendente)
+			initStudyCase(" vector aleatorio", aleatorio),
+			initStudyCase("vector ascendente",ascendente),
+			initStudyCase("vector descendente", descendente)
 	};
 
 	alg_dico aux [NUM_ALGORITHEMS] = {
@@ -301,24 +301,12 @@ alg_dico initAlgorithems(alg_dico *algoritmos){
 	printf("\n");
 }
 
-void printAlgorithemSituation(alg_dico algoritmos[]){
-
-	int i,j;
-
-	for(i=0; i<NUM_ALGORITHEMS; i++){
-		printf("* %s - tamaño vector de %d a %d de %d en %d\n", algoritmos[i].alg_name,algoritmos[i].ini,algoritmos[i].fin, algoritmos[i].mult,algoritmos[i].mult);
-		for(j=0; j<NUM_SITUATIONS; j++){
-			printf("\t - situacion %s \n",algoritmos[i].situation[j].sit_name);
-		}
-	}
-	printf("\n");
-}
-
 /*
  * DONE - funciones que se usaran para el calculo de las cotas
  */
 void initFuncs(funcion *funcs){
 
+	printf(" ************************************ \n\n");
 	printf(" - Definiendo Funciones \n");
 	printf(" ************************************ \n");
 	funcion LOG = {"log(n)",0,0};
@@ -371,9 +359,7 @@ double execute(funcion op , int n, double exp, int derivada){
 			default:
 				return -1;
 		}
-
 	}
-
 }
 
 
@@ -387,6 +373,7 @@ int main() {
 
 	// Inicializamos el muestrario de funciones y los algoritmos de estudio
 	initFuncs(funcs);
+	printFuncs(funcs);
 	initAlgorithems(algoritmos);
 	printAlgorithemSituation(algoritmos);
 	// Generamos las Posibles cotas

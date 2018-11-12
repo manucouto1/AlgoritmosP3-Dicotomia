@@ -51,13 +51,15 @@ typedef struct {
 double execute(funcion op , int n, double exp, int derivada);
 
 void initFuncs(funcion *funcs);
+void printFuncs(funcion *funcs);
 void initCotas(funcion funcs[], cota_t *cotas, int *nCotas);
 void sortCotas(cota_t *cotas, int nCotas, int punto);
 void printCotas(cota_t *cotas, int nCotas);
 
 alg_dico initAlgorithems(alg_dico *algoritmos);
-sit_dico initStudyCase(char name[], void (*ini)(int [], int));
-alg_dico initAlgorithem(char name[], void (*func)(int [], int), sit_dico sitDico[], int ini, int mult,
+sit_dico initStudyCase(char *name, void (*ini)(int [], int));
+alg_dico initAlgorithem(char *name, void (*func)(int [], int), sit_dico sitDico[], int ini, int mult,
                         int fin, int nTemp);
+void printAlgorithemSituation(alg_dico *algoritmos);
 
 void acotarComplejidad(alg_dico *algoritmos, cota_t *cotas);
