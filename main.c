@@ -3,12 +3,14 @@
 #include <math.h>
 #include <sys/time.h>
 
-#import "dicotomia.h"
+#include "dicotomia.h"
 
 #define MIN(X,Y) ((X) < (Y) ? (X) : (Y))
 #define LONGITUD_CLAVE 30
 #define LONGITUD_SINONIMOS 300
 #define MAX_N 38197
+
+#define UMBRAL 10
 
 
 typedef int pos;
@@ -202,6 +204,7 @@ void printDerivInPoint(cota_t *cotas, int nCotas, int point){
 	printf("\n");
 }
 
+// EJEMPLO PARA EL ALGORITMO DE DICOTOMIA
 /*Algoritmos de ordenación*/
 
 void ord_ins (int v [], int n) {
@@ -214,6 +217,64 @@ void ord_ins (int v [], int n) {
 			j--;
 		}
 		v[j+1] = x;
+	}
+}
+
+void intercambiar (int* i, int* j) {
+	int aux;
+	aux = *i;
+	*i = *j;
+	*j = aux;
+}
+
+void Mediana3(int v[], int i, int j) {
+	int k;
+	k = (i + j)/2;
+
+	if (v[k] > v[j]) {
+		intercambiar(&v[k], &v[j]);
+	}
+	if (v[k] > v[i]) {
+		intercambiar(&v[k],&v[i]);
+	}
+	if (v[i] > v[j]) {
+		intercambiar(&v[i], &v[j]);
+	}
+}
+
+void OrdenarAux(int v[], int izq, int der) {
+	int pivote, i, j;
+
+	if ((izq + UMBRAL) <= der) {
+		Mediana3(v, izq, der);
+
+		pivote = v[izq];
+		i = izq;
+		j = der;
+
+		while (j>i) {
+			i++;
+			while (v[i] < pivote) {
+				i++;
+			}
+			j--;
+			while (v[j] > pivote) {
+				j--;
+			}
+			intercambiar(&v[i], &v[j]);
+		}
+
+		intercambiar(&v[i], &v[j]);
+		intercambiar(&v[izq], &v[j]);
+		OrdenarAux(v, izq, j-1);
+		OrdenarAux(v, j+1, der);
+	}
+}
+
+void ord_rapida(int v[], int n) {
+	OrdenarAux(v, 0, n-1);
+	if (UMBRAL > 1){
+		ord_ins(v, n);
 	}
 }
 
@@ -232,8 +293,8 @@ alg_dico initAlgorithems(alg_dico *algoritmos){
 	};
 
 	alg_dico aux [NUM_ALGORITHEMS] = {
-			initAlgorithem("inserción",ord_ins , situations, 500, 2, 32000, 7)
-			//initAlgorithem("rápida", ord_rapida, situations, 1000, (int) pow(10,8), 10, 6)
+			initAlgorithem("inserción",ord_ins , situations, 500, 2, 32000, 7),
+			initAlgorithem("rápida", ord_rapida, situations, 1000, (int) pow(10,8), 10, 6)
 	};
 
 	memcpy(algoritmos, aux, NUM_ALGORITHEMS * sizeof(alg_dico));
