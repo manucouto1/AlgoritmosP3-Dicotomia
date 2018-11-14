@@ -200,7 +200,6 @@ void printCotas(cota_t *cotas, int nCotas){
 	for(i = 0; i < nCotas; i++){
 		printf("\t - Cota %d función %s\n",i,cotas[i].cota.name);
 	}
-
 	printf("\n");
 }
 
@@ -368,7 +367,7 @@ void mostrarCotas(alg_dico algoritmo[]){
 			printf("\nOrdenación %s con inicialización %s\n\n", algoritmo[i].alg_name
 					, algoritmo[i].situation[j].sit_name);
 
-			printf("   %-9s%-15s%-15s%-15s%-15s\n", "n", "t(n)",algoritmo[i].situation[j].sobre.cota.name,algoritmo[i].situation[j].ajus.cota.name,algoritmo[i].situation[j].sub.cota.name);
+			printf("   %-10s%-15s%-15s%-15s%-15s\n", "n", "t(n)",algoritmo[i].situation[j].sobre.cota.name,algoritmo[i].situation[j].ajus.cota.name,algoritmo[i].situation[j].sub.cota.name);
 
 			for (k = 0; k<algoritmo[i].nTemp; k++) {
 
@@ -377,13 +376,13 @@ void mostrarCotas(alg_dico algoritmo[]){
 
 				if(algoritmo[i].situation[j].tiempos->is_under_500) {
 
-					printf("(*)%-9d%-15.5f%-15.8f%-15.8f%-15.8f\n", valN, tiempo,
+					printf("(*)%-10d%-15.5f%-15.8f%-15.8f%-15.8f\n", valN, tiempo,
 					       tiempo / execute(algoritmo[i].situation[j].sobre.cota, valN, algoritmo[i].situation[j].sobre.exp,0),
 					       tiempo / execute(algoritmo[i].situation[j].ajus.cota, valN, algoritmo[i].situation[j].ajus.exp,0),
 					       tiempo / execute(algoritmo[i].situation[j].sub.cota, valN, algoritmo[i].situation[j].sub.exp,0)
 					);
 				} else {
-					printf("   %-9d%-15.5f%-15.8f%-15.8f%-15.8f\n", valN, tiempo,
+					printf("   %-10d%-15.5f%-15.8f%-15.8f%-15.8f\n", valN, tiempo,
 					       tiempo / execute(algoritmo[i].situation[j].sobre.cota, valN, algoritmo[i].situation[j].sobre.exp,0),
 					       tiempo / execute(algoritmo[i].situation[j].ajus.cota, valN, algoritmo[i].situation[j].ajus.exp,0),
 					       tiempo / execute(algoritmo[i].situation[j].sub.cota, valN, algoritmo[i].situation[j].sub.exp,0)
@@ -412,7 +411,7 @@ void testTiempos(alg_dico * algoritmo){
 	}
 }
 
-void buscarCotas(alg_dico algoritmos[], cota_t *cotas, int numCotas){
+void buscarCotas(alg_dico algoritmos[], cota_t cotas[], int numCotas){
 	int i,j;
 
 	for(i = 0; i < NUM_ALGORITHEMS; i++){
@@ -422,8 +421,6 @@ void buscarCotas(alg_dico algoritmos[], cota_t *cotas, int numCotas){
 	}
 	mostrarCotas(algoritmos);
 }
-
-
 
 
 void lecturaTiempos(alg_dico *algoritmo){
@@ -446,6 +443,3 @@ void cargarTiemposEstaticos(alg_dico algoritmos[]){
 	testBuscarCotas(algoritmos);
 	testTiempos(algoritmos);
 }
-
-
-
