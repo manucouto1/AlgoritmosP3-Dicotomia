@@ -288,7 +288,7 @@ int tendencia(double umbral_tolerancia, cota_t cota ,int nVector[], time_dico ti
 	return tend;;
 }
 
-void acotarComplejodad(sit_dico *sit, cota_t cotas[], int numCotas, int numValoresT){
+void acotarComplejidad(sit_dico *sit, cota_t cotas[], int numCotas, int numValoresT){
 	int succesSobre = 0;
 	int succesSub = 0;
 	int succesAjus = 0;
@@ -355,7 +355,7 @@ void acotarComplejodad(sit_dico *sit, cota_t cotas[], int numCotas, int numValor
 	//printf("%s\t %s\t %s\n", sit->sobre.cota.name, sit->ajus.cota.name, sit->sub.cota.name);
 }
 
-void mostrarCotas(alg_dico *algoritmo){
+void mostrarCotas(alg_dico algoritmo[]){
 	int j, i, k;
 
 	int valN;
@@ -394,18 +394,6 @@ void mostrarCotas(alg_dico *algoritmo){
 	}
 }
 
-void buscarCotas(alg_dico *algoritmos, cota_t *cotas, int numCotas){
-	int i,j;
-
-	for(i = 0; i < NUM_ALGORITHEMS; i++){
-		for(j = 0; j < NUM_SITUATIONS; j++){
-			acotarComplejodad(&algoritmos[i].situation[j], cotas, numCotas, algoritmos[i].nTemp);
-		}
-	}
-	mostrarCotas(algoritmos);
-}
-
-
 /* Test Lectura Tiempos */
 void testTiempos(alg_dico * algoritmo){
 	int i,j,k;
@@ -424,6 +412,20 @@ void testTiempos(alg_dico * algoritmo){
 	}
 }
 
+void buscarCotas(alg_dico algoritmos[], cota_t *cotas, int numCotas){
+	int i,j;
+
+	for(i = 0; i < NUM_ALGORITHEMS; i++){
+		for(j = 0; j < NUM_SITUATIONS; j++){
+			acotarComplejidad(&algoritmos[i].situation[j], cotas, numCotas, algoritmos[i].nTemp);
+		}
+	}
+	mostrarCotas(algoritmos);
+}
+
+
+
+
 void lecturaTiempos(alg_dico *algoritmo){
 	int i;
 	int j;
@@ -437,6 +439,12 @@ void lecturaTiempos(alg_dico *algoritmo){
 		}
 	}
 	testTiempos(algoritmo);
+}
+
+
+void cargarTiemposEstaticos(alg_dico algoritmos[]){
+	testBuscarCotas(algoritmos);
+	testTiempos(algoritmos);
 }
 
 

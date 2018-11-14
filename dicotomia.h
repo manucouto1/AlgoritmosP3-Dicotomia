@@ -62,12 +62,14 @@ alg_dico initAlgorithem(char *name, void (*func)(int [], int), sit_dico sitDico[
                         int fin, int nTemp);
 void printAlgorithemSituation(alg_dico *algoritmos);
 
-void acotarComplejidad(alg_dico *algoritmos, cota_t *cotas);
+//void acotarComplejidad(alg_dico *algoritmos, cota_t *cotas);
 void buscarCotas(alg_dico *algoritmos, cota_t *cotas, int numCotas);
 
 
 /* Test Lectura Tiempos */
 void leerTiempos(alg_dico algoritmo, sit_dico situacion, time_dico *tiempos, int *tamV);
 void lecturaTiempos(alg_dico *algoritmo);
+void cargarTiemposEstaticos(alg_dico algoritmo[]);
+void testBuscarCotas(alg_dico *algoritmos);
 
 

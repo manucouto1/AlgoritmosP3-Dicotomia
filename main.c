@@ -356,6 +356,7 @@ double execute(funcion op , int n, double exp, int derivada){
 	}
 }
 
+
 void testBuscarCotas(alg_dico *algoritmos){
 	int i;
 	int j;
@@ -488,9 +489,9 @@ int main() {
 	sortCotas(cotasEstudio, nCotas, 100000000);
 
 	printCotas(cotasEstudio, nCotas);
-
+	cargarTiemposEstaticos(algoritmos);
 	//lecturaTiempos(algoritmos);
-	testBuscarCotas(algoritmos); // < - Esto para testar los cambios en el algoritmo de busqueda de cotas NUM_ALG = 1 <- Cambiar
+
 	buscarCotas(algoritmos, cotasEstudio, nCotas);
 
 	//tabla_cerrada d = malloc (MAX_N * sizeof(entrada));
