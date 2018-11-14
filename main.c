@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <math.h>
 #include <sys/time.h>
+#include <time.h>
 
 #include "dicotomia.h"
 
@@ -109,6 +110,9 @@ double microsegundos(){
 }/* obtiene la hora actual en microsegundos */
 
 
+/*  */
+
+// EJEMPLO PARA EL ALGORITMO DE DICOTOMIA
 
 /* INICIALIZACIÖN DEL VECTOR */
 
@@ -128,7 +132,6 @@ void ascendente(int v [], int n) {
 		v[i] = i;
 }
 
-
 void descendente (int v[], int n){
 	int i;
 
@@ -137,75 +140,7 @@ void descendente (int v[], int n){
 	}
 }
 
-/*  */
-/*
- * DONE Leer los tiempos de un algoritmo en una situacion concreta
- */
-void leerTiempos(alg_dico algoritmo, sit_dico situacion, time_dico *tiempos, int *tamV){
-	double ta, tb, t, ti;
-	int k, n, i;
-	int *v;
-
-	void (*ini)(int [], int) = situacion.func;
-	void (*ord)(int [], int) = algoritmo.func;
-
-	//Crear objeto algoritmo
-	int inicio = algoritmo.ini;
-	int fin = algoritmo.fin;
-	int mult = algoritmo.mult;
-
-	i = 0;
-
-	for (n = inicio; n <= fin; n = n * mult) {
-		v = malloc(sizeof(int) * n);
-		ini(v, n);
-		ta = microsegundos();
-		ord(v, n);
-		tb = microsegundos();
-		t = tb - ta;
-		tamV[i]=n;
-
-		if (t < 500) {
-			ta = microsegundos();
-			for (k = 0; k < 1000; k++) {
-				ini(v, n);
-				ord(v, n);
-			}
-			tb = microsegundos();
-			t = tb - ta;
-
-			ta = microsegundos();
-			for (k = 0; k < 1000; k++) {
-				ini(v, n);
-			}
-			tb = microsegundos();
-
-			ti = tb - ta;
-			t = (t - ti) / k;
-
-			// DONE > guardar tiempo con *
-			tiempos[i] = (time_dico){1,t};
-		} else {
-			// DONE > guardar tiempo
-			tiempos[i] = (time_dico){0,t};
-		}
-		i++;
-		free(v);
-	}
-}
-
-void printDerivInPoint(cota_t *cotas, int nCotas, int point){
-
-	int i;
-
-	for(i=0; i<nCotas; i++){
-		printf(" %f,", execute(cotas[i].cota,point,cotas[i].exp,1));
-	}
-	printf("\n");
-}
-
-// EJEMPLO PARA EL ALGORITMO DE DICOTOMIA
-/*Algoritmos de ordenación*/
+/* ALGORITMOS ORDENACION */
 
 void ord_ins (int v [], int n) {
 	int i, j, x;
@@ -213,7 +148,7 @@ void ord_ins (int v [], int n) {
 		x = v[i];
 		j = i-1;
 		while (j>=0 && v[j]>x) {
-			v[j+1] = v[j];;
+			v[j+1] = v[j];
 			j--;
 		}
 		v[j+1] = x;
@@ -278,6 +213,64 @@ void ord_rapida(int v[], int n) {
 	}
 }
 
+/*Algoritmos de ordenación*/
+
+/*
+ * DONE Leer los tiempos de un algoritmo en una situacion concreta
+ */
+void leerTiempos(alg_dico algoritmo, sit_dico situacion, time_dico *tiempos, int *tamV){
+	double ta, tb, t, ti;
+	int k, n, i;
+	int *v;
+
+	void (*ini)(int [], int) = situacion.func;
+	void (*ord)(int [], int) = algoritmo.func;
+
+	//Crear objeto algoritmo
+	int inicio = algoritmo.ini;
+	int fin = algoritmo.fin;
+	int mult = algoritmo.mult;
+
+	i = 0;
+
+	for (n = inicio; n <= fin; n = n * mult) {
+		v = malloc(sizeof(int) * n);
+		ini(v, n);
+		ta = microsegundos();
+		ord(v, n);
+		tb = microsegundos();
+		t = tb - ta;
+		tamV[i]=n;
+
+		if (t < 500) {
+			ta = microsegundos();
+			for (k = 0; k < 1000; k++) {
+				ini(v, n);
+				ord(v, n);
+			}
+			tb = microsegundos();
+			t = tb - ta;
+
+			ta = microsegundos();
+			for (k = 0; k < 1000; k++) {
+				ini(v, n);
+			}
+			tb = microsegundos();
+
+			ti = tb - ta;
+			t = (t - ti) / k;
+
+			// DONE > guardar tiempo con *
+			tiempos[i] = (time_dico){1,t};
+		} else {
+			// DONE > guardar tiempo
+			tiempos[i] = (time_dico){0,t};
+		}
+		i++;
+		free(v);
+	}
+}
+
 /*
  * DONE - inicialización del los algoritmos de los que realizaremos el estudio
  */
@@ -287,14 +280,14 @@ alg_dico initAlgorithems(alg_dico *algoritmos){
 	printf(" - Inicializando Algoritmos \n");
 	printf(" ************************************ \n");
 	sit_dico situations[NUM_SITUATIONS] = {
-			initStudyCase(" vector aleatorio", aleatorio),
+			initStudyCase("vector aleatorio", aleatorio),
 			initStudyCase("vector ascendente",ascendente),
 			initStudyCase("vector descendente", descendente)
 	};
 
 	alg_dico aux [NUM_ALGORITHEMS] = {
 			initAlgorithem("inserción",ord_ins , situations, 500, 2, 32000, 7),
-			initAlgorithem("rápida", ord_rapida, situations, 1000, (int) pow(10,8), 10, 6)
+			initAlgorithem("rápida", ord_rapida, situations, 1000, 10, (int) pow(10,8), 6)
 	};
 
 	memcpy(algoritmos, aux, NUM_ALGORITHEMS * sizeof(alg_dico));
@@ -309,6 +302,7 @@ void initFuncs(funcion *funcs){
 	printf(" ************************************ \n\n");
 	printf(" - Definiendo Funciones \n");
 	printf(" ************************************ \n");
+
 	funcion LOG = {"log(n)",0,0};
 	funcion N = {"n",0,1};
 	funcion NxLogN = {"n*log(n)",0,2};
@@ -355,11 +349,118 @@ double execute(funcion op , int n, double exp, int derivada){
 			case 3:
 				return exp*pow(n,exp-1);
 			case 4:
-				return ((n*exp)*log(n))+(pow(n,exp)*1/n);
+				return (exp*pow(n,exp-1)*log(n))+(pow(n,exp)*1/n);
 			default:
 				return -1;
 		}
 	}
+}
+
+void testBuscarCotas(alg_dico *algoritmos){
+	int i;
+	int j;
+
+	int valN1[7] = {
+			500,
+			1000,
+			2000,
+			4000,
+			8000,
+			16000,
+			32000,
+	};
+
+	double tiemposAleatorio1[7] = {
+			172.153000,
+			564.000000,
+			2504.000000,
+			9730.000000,
+			45811.000000,
+			162141.000000,
+			647200.000000
+	};
+	double tiemposAscendente1[7] = {
+			1.423000,
+			3.380000,
+			6.447000,
+			14.367000,
+			28.490000,
+			56.948000,
+			111.303000
+	};
+	double tiemposDescendente1[7] = {
+			307.543000,
+			2548.000000,
+			6552.000000,
+			19952.000000,
+			85311.000000,
+			340125.000000,
+			1245683.000000
+	};
+
+	int valN2[6] = {
+			1000,
+			10000,
+			100000,
+			1000000,
+			10000000,
+			100000000,
+	};
+
+	double tiemposAleatorio2[6] = {
+			74.204000 ,
+			1037.000000,
+			11240.000000,
+			138495.000000,
+			1617462.000000,
+			18189339.000000
+	};
+	double tiemposAscendente2[6] = {
+			18.478000,
+			235.075000,
+			2937.000000,
+			37724.000000,
+			415518.000000,
+			5028260.000000
+	};
+	double tiemposDescendente2[6] = {
+			18.727000,
+			236.480000,
+			3637.000000,
+			34892.000000,
+			413979.000000,
+			5028260.000000,
+	};
+
+	double *tiemposSit[7] =
+			{
+			tiemposAleatorio1,
+			tiemposAscendente1,
+			tiemposDescendente1
+			};
+
+	double *tiemposSit2[6] =
+			{
+					tiemposAleatorio2,
+					tiemposAscendente2,
+					tiemposDescendente2
+			};
+
+	algoritmos[0].nTemp = 7;
+	for (i = 0; i< NUM_SITUATIONS; i++)
+		for (j = 0; j < algoritmos[0].nTemp; ++j) {
+			algoritmos[0].situation[i].tiempos[j].tiempo = tiemposSit[i][j];
+			algoritmos[0].situation[i].valN[j] = valN1[j];
+			algoritmos[0].situation[i].tiempos[j].is_under_500 = 0;
+		}
+
+	algoritmos[1].nTemp = 6;
+	for (i = 0; i< NUM_SITUATIONS; i++)
+		for (j = 0; j < 6; ++j) {
+			algoritmos[1].situation[i].tiempos[j].tiempo = tiemposSit2[i][j];
+			algoritmos[1].situation[i].valN[j] = valN2[j];
+			algoritmos[1].situation[i].tiempos[j].is_under_500 = 0;
+		}
 }
 
 
@@ -376,6 +477,7 @@ int main() {
 	printFuncs(funcs);
 	initAlgorithems(algoritmos);
 	printAlgorithemSituation(algoritmos);
+
 	// Generamos las Posibles cotas
 	initCotas(funcs, cotasEstudio, &nCotas);
 	printCotas(cotasEstudio, nCotas);
@@ -383,18 +485,15 @@ int main() {
 	// Ordenamos las Posibles Cotas basándonos en la pendiente de las funciones en un punto
 	// representativo del intervalo en el que se realiza el estudio
 	// printDerivInPoint(cotasEstudio, nCotas, 20000);
-	sortCotas(cotasEstudio, nCotas, 20000);
+	sortCotas(cotasEstudio, nCotas, 100000000);
 
 	printCotas(cotasEstudio, nCotas);
 
-	//medirTiempos();
-	//acorarComplejidad();
-
-	//mostrarResultados();
+	//lecturaTiempos(algoritmos);
+	testBuscarCotas(algoritmos); // < - Esto para testar los cambios en el algoritmo de busqueda de cotas NUM_ALG = 1 <- Cambiar
+	buscarCotas(algoritmos, cotasEstudio, nCotas);
 
 	//tabla_cerrada d = malloc (MAX_N * sizeof(entrada));
 
-
 	free(cotasEstudio);
-	return 0;
 }

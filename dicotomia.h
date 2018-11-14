@@ -30,8 +30,8 @@ typedef struct {
 	cota_t sobre;
 	cota_t ajus;
 	cota_t sub;
-	time_dico tiempos;
-	int tamV;
+	time_dico tiempos[256];
+	int valN[256];
 	void (*func)(int v[], int nargs);
 	char sit_name[256];
 } sit_dico;
@@ -63,3 +63,11 @@ alg_dico initAlgorithem(char *name, void (*func)(int [], int), sit_dico sitDico[
 void printAlgorithemSituation(alg_dico *algoritmos);
 
 void acotarComplejidad(alg_dico *algoritmos, cota_t *cotas);
+void buscarCotas(alg_dico *algoritmos, cota_t *cotas, int numCotas);
+
+
+/* Test Lectura Tiempos */
+void leerTiempos(alg_dico algoritmo, sit_dico situacion, time_dico *tiempos, int *tamV);
+void lecturaTiempos(alg_dico *algoritmo);
+
+

@@ -1,3 +1,4 @@
+#include <math.h>
 #include "dicotomia.h"
 
 /*Algoritmos de ordenación*/
@@ -202,3 +203,241 @@ void printCotas(cota_t *cotas, int nCotas){
 
 	printf("\n");
 }
+
+int tendencia(double umbral_tolerancia, cota_t cota ,int nVector[], time_dico tiempos[] , int nArgs){
+
+	int i = 1;
+	int tend = 7; // 7 indica que es la primera iteración
+	int anomalo = 0;
+
+	long double n;
+	long double n_mas_uno;
+
+	// estado Anomalo = 0 -> el resultado anterior fue el esperado
+	// estado Anomalo = 1 -> el resultado anterior cambia la tendencia
+
+	// Si n < n_mas_uno -> ( n_mas_uno - n + umbral > 0 ) -> crece
+	// Si n > n_mas_uno -> ( n - n_mas_uno + umbral > 0 ) -> decrece
+	// Si n == n_mas_uno -> ( n_mas_uno - n < umbral ) -> ajustada
+
+	// El umbral lo usamos para que tenga cierta tolerancia a mediciones extrañas
+	// TODO - Hay que definir un comportamiento para los casos en los que no sea extrictamente creciente/decreciente/cte
+	// TODO - He pensado en hacer un pequeño autómata como en EC para que sigua
+
+	n = (tiempos[0].tiempo / execute(cota.cota, nVector[0],cota.exp,0));
+
+	while (i < (nArgs - 1) && tend >= -1) {
+		printf(" - Nombre F(n) = %-13s | f(n) = %-24f | t = %-20f | t/f(n) = %-20.15Lf\n", cota.cota.name,
+				execute(cota.cota, nVector[i],cota.exp,0), tiempos[i].tiempo, n);
+
+		n_mas_uno = (tiempos[i + 1].tiempo / execute(cota.cota, nVector[i + 1],cota.exp,0));
+
+		if (n_mas_uno - n + umbral_tolerancia > 0){
+			if(!anomalo){
+				if(tend == 7 || tend == 1) // tend == 7 es para la primera iteración
+					tend = 1; // Crece
+				else {
+					anomalo = 1;
+					tend = 1; // avisamos de que ha habido una dato anómalo
+				}
+			} else {
+				if( tend == 1 ){
+					tend = 1; // Crece
+				} else {
+					tend = -2; // optamos por dar el resultado por erroneo, demasiados datos erroneos
+				}
+			}
+
+		} else if (n - n_mas_uno + umbral_tolerancia > 0){
+			if(!anomalo){
+				if(tend == 7 || tend == -1) { // tend == 7 es para la primera iteración
+					tend = -1; // Decrece
+					anomalo = 0;
+				} else {
+					anomalo = 1;
+					tend = -1; // avisamos de que ha habido una dato anómalo
+				}
+			} else {
+				if( tend == -1 ){
+					tend = -1;
+				} else {
+					tend = -2; // optamos por dar el resultado por erroneo, demasiados datos erroneos
+				}
+			}
+		} else if (fabs((double)(1000000*n - 1000000*n_mas_uno)) < 1000000*umbral_tolerancia){
+			if(!anomalo){
+				if(tend == 7 || tend == 0) { // tend == 7 es para la primera iteración
+					anomalo = 0;
+					tend = 0;
+				} else {
+					anomalo = 1;
+					tend = 0; // avisamos de que ha habido una dato anómalo
+				}
+			} else {
+				if( tend == 0 ){
+					tend = 0;
+				} else {
+					tend = -2; // optamos por dar el resultado por erroneo, demasiados datos erroneos
+				}
+			}
+		}
+		n = n_mas_uno;
+		i++;
+	}
+
+	return tend;;
+}
+
+void acotarComplejodad(sit_dico *sit, cota_t cotas[], int numCotas, int numValoresT){
+	int succesSobre = 0;
+	int succesSub = 0;
+	int succesAjus = 0;
+
+	double err = 1.0;
+	double umbral = 0.00000000000000001;
+	int pibSobre = numCotas - 1;
+	int pibSub = 0;
+	int pibAjus;
+
+	int automata;
+
+	while (pibSobre > pibSub && (!succesSobre || !succesSub) && err > 0.1) {
+		if(!succesSobre) {
+			printf("_______________________________________________________________________________________________________________________________\n");
+			automata = tendencia(umbral, cotas[pibSobre], sit->valN, sit->tiempos, numValoresT);
+			if (automata == -1)
+				pibSobre--;
+			else if (automata == 0) {
+				succesAjus = 1;
+				pibAjus = pibSobre;
+				interCambioCotas(&sit->ajus, &cotas[pibAjus]);
+				printf(" ^ >>>>>> AJUSTADA <<<<<   %d\n", pibAjus);
+				pibSobre++;
+			} else {
+				pibSobre++;
+				printf(" ^ >>>>>> SOBRESTIMADA <<<<<   %d\n", pibSobre);
+				interCambioCotas(&sit->sobre, &cotas[pibSobre]);
+				succesSobre = 1;
+			}
+		}
+		printf("- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - \n");
+		if(!succesSub) {
+			automata = tendencia(umbral, cotas[pibSub], sit->valN, sit->tiempos, numValoresT);
+			if (automata == 1)
+				pibSub++;
+			else if (automata == 0) {
+				succesAjus = 1;
+				pibAjus = pibSub;
+				interCambioCotas(&sit->ajus, &cotas[pibAjus]);
+				printf(" ^ >>>>>> AJUSTADA <<<<<   %d\n", pibAjus);
+				pibSub--;
+			} else {
+                pibSub--;
+				printf(" ^ >>>>>> SUBESTIMADA <<<<<   %d\n", pibSub);
+				interCambioCotas(&sit->sub, &cotas[pibSub]);
+				succesSub = 1;
+			}
+		}
+	}
+
+	if(!succesSobre)
+		interCambioCotas(&sit->sobre, &cotas[pibSobre]);
+	if(!succesSub)
+		interCambioCotas(&sit->sub, &cotas[pibSub]);
+	if(!succesAjus)
+		interCambioCotas(&sit->ajus, &cotas[(pibSub+pibSobre)/2]);
+	printf("RESULTS ");
+	printf("___________________________________________________________\n");
+	printf("SuccesSub %5d | SuccesSobre %5d\n", succesSub, succesSobre);
+	printf("Value Sub %5d | Value Sobre %5d\n", pibSub, pibSobre);
+	printf("NOT SUCCESS | \tsub > %5s \tajust > %5s \tsobre > %5s \n",sit->sub.cota.name,sit->ajus.cota.name,sit->sobre.cota.name);
+
+	//printf("%s\t %s\t %s\n", sit->sobre.cota.name, sit->ajus.cota.name, sit->sub.cota.name);
+}
+
+void mostrarCotas(alg_dico *algoritmo){
+	int j, i, k;
+
+	int valN;
+	double tiempo;
+
+	for(i = 0; i<NUM_ALGORITHEMS; i++) {
+		for (j = 0;  j< NUM_SITUATIONS; j++) {
+
+			printf("\n-------------------------------------------------------------\n");
+			printf("\nOrdenación %s con inicialización %s\n\n", algoritmo[i].alg_name
+					, algoritmo[i].situation[j].sit_name);
+
+			printf("   %-9s%-15s%-15s%-15s%-15s\n", "n", "t(n)",algoritmo[i].situation[j].sobre.cota.name,algoritmo[i].situation[j].ajus.cota.name,algoritmo[i].situation[j].sub.cota.name);
+
+			for (k = 0; k<algoritmo[i].nTemp; k++) {
+
+				valN = algoritmo[i].situation[j].valN[k];
+				tiempo = algoritmo[i].situation[j].tiempos[k].tiempo;
+
+				if(algoritmo[i].situation[j].tiempos->is_under_500) {
+
+					printf("(*)%-9d%-15.5f%-15.8f%-15.8f%-15.8f\n", valN, tiempo,
+					       tiempo / execute(algoritmo[i].situation[j].sobre.cota, valN, algoritmo[i].situation[j].sobre.exp,0),
+					       tiempo / execute(algoritmo[i].situation[j].ajus.cota, valN, algoritmo[i].situation[j].ajus.exp,0),
+					       tiempo / execute(algoritmo[i].situation[j].sub.cota, valN, algoritmo[i].situation[j].sub.exp,0)
+					);
+				} else {
+					printf("   %-9d%-15.5f%-15.8f%-15.8f%-15.8f\n", valN, tiempo,
+					       tiempo / execute(algoritmo[i].situation[j].sobre.cota, valN, algoritmo[i].situation[j].sobre.exp,0),
+					       tiempo / execute(algoritmo[i].situation[j].ajus.cota, valN, algoritmo[i].situation[j].ajus.exp,0),
+					       tiempo / execute(algoritmo[i].situation[j].sub.cota, valN, algoritmo[i].situation[j].sub.exp,0)
+					);
+				}
+			}
+		}
+	}
+}
+
+void buscarCotas(alg_dico *algoritmos, cota_t *cotas, int numCotas){
+	int i,j;
+
+	for(i = 0; i < NUM_ALGORITHEMS; i++){
+		for(j = 0; j < NUM_SITUATIONS; j++){
+			acotarComplejodad(&algoritmos[i].situation[j], cotas, numCotas, algoritmos[i].nTemp);
+		}
+	}
+	mostrarCotas(algoritmos);
+}
+
+
+/* Test Lectura Tiempos */
+void testTiempos(alg_dico * algoritmo){
+	int i,j,k;
+	int n;
+
+	for( i = 0; i<2; i++){
+		printf("\n\t Algoritmo > %s\n", algoritmo[i].alg_name);
+		for (k= 0; k<3; k++) {
+			n = algoritmo[i].ini;
+			printf("\n\t\t Metodo > %s\n", algoritmo[i].situation[k].sit_name);
+			for (j = 0; j < algoritmo[i].nTemp; j++) {
+				printf("\t\t\t%d > %f \n", n,algoritmo[i].situation[k].tiempos[j].tiempo);
+				n = n*algoritmo[i].mult;
+			}
+		}
+	}
+}
+
+void lecturaTiempos(alg_dico *algoritmo){
+	int i;
+	int j;
+
+	printf(" - Leyendo tiempos \n");
+	printf(" ************************************ \n");
+	for(i = 0; i<2; i++){
+		for(j = 0; j<3; j++) {
+			leerTiempos(algoritmo[i], algoritmo[i].situation[j] ,algoritmo[i].situation[j].tiempos,
+					algoritmo[i].situation[j].valN);
+		}
+	}
+	testTiempos(algoritmo);
+}
+
+
+
