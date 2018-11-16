@@ -1,10 +1,9 @@
 #include <string.h>
-#include <stdlib.h>
 #include <math.h>
 #include <sys/time.h>
 #include <time.h>
 
-#include "dicotomia.h"
+#include "readWriteData.h"
 
 #define MIN(X,Y) ((X) < (Y) ? (X) : (Y))
 #define LONGITUD_CLAVE 30
@@ -54,11 +53,11 @@ int leer_sinonimos(item datos[]) {
 		return(EXIT_FAILURE);
 	}
 	for (i = 0; fscanf(archivo, "%s", datos[i].clave) != EOF; i++) {
-		if ((c = fgetc(archivo)) != '\t') {
+		if ((c = (char)fgetc(archivo)) != '\t') {
 			printf("Error al leer el tabulador\n");
 			return(EXIT_FAILURE);
 		}
-		for (j = 0; (c = fgetc(archivo)) != '\n'; j++) {
+		for (j = 0; (c = (char)fgetc(archivo)) != '\n'; j++) {
 			if (j < LONGITUD_SINONIMOS - 1)
 				datos[i].sinonimos[j] = c;
 		}
@@ -372,31 +371,31 @@ void testBuscarCotas(alg_dico *algoritmos){
 	};
 
 	double tiemposAleatorio1[7] = {
-			172.153000,
-			564.000000,
-			2504.000000,
-			9730.000000,
-			45811.000000,
-			162141.000000,
-			647200.000000
+			168.447,
+			629.000,
+			2541.000,
+			10695.000,
+			41743.000,
+			164947.000,
+			662970.000
 	};
 	double tiemposAscendente1[7] = {
-			1.423000,
-			3.380000,
-			6.447000,
-			14.367000,
-			28.490000,
-			56.948000,
-			111.303000
+			1.677,
+			3.505,
+			7.423,
+			14.408,
+			28.021,
+			57.572,
+			113.584
 	};
 	double tiemposDescendente1[7] = {
-			307.543000,
-			2548.000000,
-			6552.000000,
-			19952.000000,
-			85311.000000,
-			340125.000000,
-			1245683.000000
+			325.930,
+			1272.000,
+			5045.000,
+			21478.000,
+			83554.000,
+			333090.000,
+			1329286.000
 	};
 
 	int valN2[6] = {
@@ -409,28 +408,28 @@ void testBuscarCotas(alg_dico *algoritmos){
 	};
 
 	double tiemposAleatorio2[6] = {
-			74.204000 ,
-			1037.000000,
-			11240.000000,
-			138495.000000,
-			1617462.000000,
-			18189339.000000
+			88.181 ,
+			1104.000,
+			13402.000,
+			157266.000,
+			1785411.000,
+			21578922.000
 	};
 	double tiemposAscendente2[6] = {
-			18.478000,
-			235.075000,
-			2937.000000,
-			37724.000000,
-			415518.000000,
-			5028260.000000
+			29.084,
+			357.952,
+			4295.000,
+			48106.000,
+			545784.000,
+			6603134.000
 	};
 	double tiemposDescendente2[6] = {
-			18.727000,
-			236.480000,
-			3637.000000,
-			34892.000000,
-			413979.000000,
-			5028260.000000,
+			32.999,
+			374.958,
+			4374.000,
+			49870.000,
+			556804.000,
+			6727867.000,
 	};
 
 	double *tiemposSit[7] =
@@ -486,12 +485,13 @@ int main() {
 	// Ordenamos las Posibles Cotas basándonos en la pendiente de las funciones en un punto
 	// representativo del intervalo en el que se realiza el estudio
 	// printDerivInPoint(cotasEstudio, nCotas, 20000);
-	sortCotas(cotasEstudio, nCotas, 100000000);
+	sortCotas(cotasEstudio, &nCotas, 1000, 100000000);
 
 	printCotas(cotasEstudio, nCotas);
-	cargarTiemposEstaticos(algoritmos);
+	//cargarTiemposEstaticos(algoritmos);
+	//cacheTimeData(algoritmos);
 	//lecturaTiempos(algoritmos);
-
+	loadCachedTime(algoritmos);
 	buscarCotas(algoritmos, cotasEstudio, nCotas);
 
 	//tabla_cerrada d = malloc (MAX_N * sizeof(entrada));

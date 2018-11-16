@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <string.h>
+#include <stdlib.h>
 
 // Constantes Algoritmo Dicotomia
 #define UMBRAL_DICO 10
@@ -53,7 +54,7 @@ double execute(funcion op , int n, double exp, int derivada);
 void initFuncs(funcion *funcs);
 void printFuncs(funcion *funcs);
 void initCotas(funcion funcs[], cota_t *cotas, int *nCotas);
-void sortCotas(cota_t *cotas, int nCotas, int punto);
+void sortCotas(cota_t *cotas, int *nCotas, int puntoInicial, int puntoFinal);
 void printCotas(cota_t *cotas, int nCotas);
 
 alg_dico initAlgorithems(alg_dico *algoritmos);
@@ -71,5 +72,6 @@ void leerTiempos(alg_dico algoritmo, sit_dico situacion, time_dico *tiempos, int
 void lecturaTiempos(alg_dico *algoritmo);
 void cargarTiemposEstaticos(alg_dico algoritmo[]);
 void testBuscarCotas(alg_dico *algoritmos);
+void testTiempos(alg_dico * algoritmo);
 
 

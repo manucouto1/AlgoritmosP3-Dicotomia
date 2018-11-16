@@ -9,16 +9,16 @@ void interCambioCotas(cota_t *cota1, cota_t *cota2){
 	strcpy(cota1->cota.name, cota2->cota.name);
 }
 
-void ord_ins_dico (cota_t v[], int n, int punto) {
+void ord_ins_dico (cota_t v[], int n, int puntoIni, int puntoFin) {
 	int i, j;
 	cota_t cotaAux;
 	double valorCotaAux;
 
 	for (i=1; i<n; i++) {
 		interCambioCotas(&cotaAux, &v[i]);
-		valorCotaAux = execute(v[i].cota,punto,v[i].exp,1);
+		valorCotaAux = execute(v[i].cota,puntoIni,v[i].exp,1)+execute(v[i].cota,puntoFin,v[i].exp,1);
 		j = i-1;
-		while (j>=0 && execute(v[j].cota,punto,v[j].exp,1)>valorCotaAux) {
+		while (j>=0 && (execute(v[j].cota,puntoIni,v[j].exp,1)+execute(v[j].cota,puntoFin,v[j].exp,1))>valorCotaAux) {
 			interCambioCotas(&v[j+1],&v[j]);
 			j--;
 		}
@@ -86,7 +86,7 @@ void OrdenarAux_dico(cota_t *v, int izq, int der, int n) {
 void ord_rapida_dico(cota_t *v, int n, int punto) {
 	OrdenarAux_dico(v, 0, n-1, punto);
 	if (UMBRAL_DICO > 1){
-		ord_ins_dico(v, n, punto);
+		ord_ins_dico(v, n, punto, punto); // Fix punto ini punto fin
 	}
 }
 //
@@ -182,16 +182,55 @@ void initCotas(funcion funcs[], cota_t *cotas, int *nCotas) {
 	printf("\n");
 }
 
+void fixProblematic(cota_t cotas1[], cota_t cotas2[], int *nCotas){
+	int i,j;
+
+	for(i=0; i<*nCotas; i++){
+		if(strcmp(cotas1[i].cota.name, cotas2[i].cota.name)!=0){
+
+			if(cotas1[i].cota.isComplex){
+				interCambioCotas(&cotas1[i],&cotas2[i]);
+				for(j=(i+1); j<*nCotas; j++){
+					interCambioCotas(&cotas1[j],&cotas1[j+1]);
+					interCambioCotas(&cotas2[j],&cotas2[j+1]);
+				}
+			} else {
+
+				for(j=(i+1); j<*nCotas; j++){
+					interCambioCotas(&cotas1[j],&cotas1[j+1]);
+					interCambioCotas(&cotas2[j],&cotas2[j+1]);
+				}
+			}
+			(*nCotas)--;
+		}
+	}
+	printf("\n");
+}
+
 /*
  * TODO - las cotas tienen que estar ordenadas,
  * al ser crecientes y al no tener puntos de inflexión debería llegar con ver la derivada en el punto inicial
  * si una función tiene mas pendiente cerca del punto inicial tendría que estar siempre por encima
  */
-void sortCotas(cota_t *cotas, int nCotas, int punto) {
+void sortCotas(cota_t cotas[], int *nCotas, int puntoInicial, int puntoFinal) {
+	cota_t *cotasAux = malloc(sizeof(cota_t)*100);
+	int i;
+
+	for(i=0; i<*nCotas; i++){
+		interCambioCotas(&cotasAux[i], &cotas[i]);
+	}
 	printf(" - Ordenando Cotas \n");
 	printf(" ************************************ \n");
-	ord_ins_dico(cotas,nCotas,punto);
+
+	ord_ins_dico(cotas,*nCotas, puntoInicial, puntoFinal);
+	//ord_ins_dico(cotasAux, *nCotas, puntoFinal);
+
+	for(i=0; i<*nCotas; i++){
+		printf(" %-15s - %10s\n", cotas[i].cota.name,cotasAux[i].cota.name);
+	}
+	//fixProblematic(cotas, cotasAux, nCotas);
 	printf("\n");
+	free(cotasAux);
 }
 
 void printCotas(cota_t *cotas, int nCotas){
@@ -224,14 +263,16 @@ int tendencia(double umbral_tolerancia, cota_t cota ,int nVector[], time_dico ti
 	// TODO - He pensado en hacer un pequeño autómata como en EC para que sigua
 
 	n = (tiempos[0].tiempo / execute(cota.cota, nVector[0],cota.exp,0));
+	printf(" - Nombre F(n) = %-13s | f(n) = %-24f | t = %-20f | t/f(n) = %-20.15Lf\n", cota.cota.name,
+	       execute(cota.cota, nVector[0],cota.exp,0), tiempos[0].tiempo, n);
 
 	while (i < (nArgs - 1) && tend >= -1) {
-		printf(" - Nombre F(n) = %-13s | f(n) = %-24f | t = %-20f | t/f(n) = %-20.15Lf\n", cota.cota.name,
-				execute(cota.cota, nVector[i],cota.exp,0), tiempos[i].tiempo, n);
 
 		n_mas_uno = (tiempos[i + 1].tiempo / execute(cota.cota, nVector[i + 1],cota.exp,0));
+		printf(" - Nombre F(n) = %-13s | f(n) = %-24f | t = %-20f | t/f(n) = %-20.15Lf\n", cota.cota.name,
+		       execute(cota.cota, nVector[i],cota.exp,0), tiempos[i].tiempo, n_mas_uno);
 
-		if (n_mas_uno - n + umbral_tolerancia > 0){
+		if (n_mas_uno - n + ((n_mas_uno - n)*umbral_tolerancia) > 0){
 			if(!anomalo){
 				if(tend == 7 || tend == 1) // tend == 7 es para la primera iteración
 					tend = 1; // Crece
@@ -247,7 +288,7 @@ int tendencia(double umbral_tolerancia, cota_t cota ,int nVector[], time_dico ti
 				}
 			}
 
-		} else if (n - n_mas_uno + umbral_tolerancia > 0){
+		} else if (n - n_mas_uno + fabs((double)(1000000*n - 1000000*n_mas_uno)/1000000)*umbral_tolerancia > 0){
 			if(!anomalo){
 				if(tend == 7 || tend == -1) { // tend == 7 es para la primera iteración
 					tend = -1; // Decrece
@@ -263,7 +304,7 @@ int tendencia(double umbral_tolerancia, cota_t cota ,int nVector[], time_dico ti
 					tend = -2; // optamos por dar el resultado por erroneo, demasiados datos erroneos
 				}
 			}
-		} else if (fabs((double)(1000000*n - 1000000*n_mas_uno)) < 1000000*umbral_tolerancia){
+		} else if (fabs((double)(1000000*n - 1000000*n_mas_uno)/1000000)*umbral_tolerancia < umbral_tolerancia){
 			if(!anomalo){
 				if(tend == 7 || tend == 0) { // tend == 7 es para la primera iteración
 					anomalo = 0;
@@ -293,27 +334,28 @@ void acotarComplejidad(sit_dico *sit, cota_t cotas[], int numCotas, int numValor
 	int succesAjus = 0;
 
 	double err = 1.0;
-	double umbral = 0.00000000000000001;
-	int pibSobre = numCotas - 1;
-	int pibSub = 0;
+	double umbral = 0.01;
+	int pibSobre = 0;
+	int pibSub = numCotas - 1;
 	int pibAjus;
 
 	int automata;
 
-	while (pibSobre > pibSub && (!succesSobre || !succesSub) && err > 0.1) {
+	while (pibSobre < pibSub && (!succesSobre || !succesSub) && err > 0.1) {
 		if(!succesSobre) {
 			printf("_______________________________________________________________________________________________________________________________\n");
+			printf("Acotando SOBRE \n");
 			automata = tendencia(umbral, cotas[pibSobre], sit->valN, sit->tiempos, numValoresT);
-			if (automata == -1)
-				pibSobre--;
+			if (automata == 1)
+				pibSobre++;
 			else if (automata == 0) {
 				succesAjus = 1;
 				pibAjus = pibSobre;
 				interCambioCotas(&sit->ajus, &cotas[pibAjus]);
 				printf(" ^ >>>>>> AJUSTADA <<<<<   %d\n", pibAjus);
-				pibSobre++;
+				pibSobre--;
 			} else {
-				pibSobre++;
+				pibSobre--;
 				printf(" ^ >>>>>> SOBRESTIMADA <<<<<   %d\n", pibSobre);
 				interCambioCotas(&sit->sobre, &cotas[pibSobre]);
 				succesSobre = 1;
@@ -321,17 +363,18 @@ void acotarComplejidad(sit_dico *sit, cota_t cotas[], int numCotas, int numValor
 		}
 		printf("- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - \n");
 		if(!succesSub) {
+			printf("Acotando SUB \n");
 			automata = tendencia(umbral, cotas[pibSub], sit->valN, sit->tiempos, numValoresT);
-			if (automata == 1)
-				pibSub++;
+			if (automata == -1)
+				pibSub--;
 			else if (automata == 0) {
 				succesAjus = 1;
 				pibAjus = pibSub;
 				interCambioCotas(&sit->ajus, &cotas[pibAjus]);
 				printf(" ^ >>>>>> AJUSTADA <<<<<   %d\n", pibAjus);
-				pibSub--;
+				pibSub++;
 			} else {
-                pibSub--;
+                pibSub++;
 				printf(" ^ >>>>>> SUBESTIMADA <<<<<   %d\n", pibSub);
 				interCambioCotas(&sit->sub, &cotas[pibSub]);
 				succesSub = 1;
