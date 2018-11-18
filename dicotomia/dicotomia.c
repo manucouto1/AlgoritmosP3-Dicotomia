@@ -1,6 +1,7 @@
 #include <math.h>
 #include "dicotomia.h"
 
+
 /*Algoritmos de ordenación*/
 void interCambioCotas(cota_t *cota1, cota_t *cota2){
 	cota1->exp = cota2->exp;
@@ -27,108 +28,6 @@ void ord_ins_dico (cota_t v[], int n, int puntoIni, int puntoFin) {
 }
 
 // TODO IMPLEMENTAR ORDENACION RAPIDA DE COTAS
-void intercambiar_dico (cota_t* i, cota_t* j) {
-	cota_t aux;
-	aux = *i;
-	*i = *j;
-	*j = aux;
-}
-
-void Mediana3_dico(cota_t *v, int i, int j, int n) {
-	int k;
-	k = (i + j)/2;
-
-	double valK = execute(v[k].cota , n, v[k].exp, 1);
-	double valJ = execute(v[j].cota , n, v[j].exp, 1);
-	double valI = execute(v[i].cota , n, v[i].exp, 1);
-
-	if (valK > valJ) {
-		intercambiar_dico(&v[k], &v[j]);
-	}
-	if (valK > valI) {
-		intercambiar_dico(&v[k],&v[i]);
-	}
-	if (valI > valJ) {
-		intercambiar_dico(&v[i], &v[j]);
-	}
-}
-
-void OrdenarAux_dico(cota_t *v, int izq, int der, int n) {
-	double pivote;
-	int i, j;
-
-	if ((izq + UMBRAL_DICO) <= der) {
-		Mediana3_dico(v, izq, der, n);
-
-		pivote = execute(v[izq].cota,n,v[izq].exp,1);
-		i = izq;
-		j = der;
-
-		while (j>i) {
-			i++;
-			while (execute(v[i].cota,n,v[i].exp,1)< pivote) {
-				i++;
-			}
-			j--;
-			while (execute(v[j].cota,n,v[j].exp,1) > pivote) {
-				j--;
-			}
-			intercambiar_dico(&v[i], &v[j]);
-		}
-
-		intercambiar_dico(&v[i], &v[j]);
-		intercambiar_dico(&v[izq], &v[j]);
-		OrdenarAux_dico(v, izq, j-1, n);
-		OrdenarAux_dico(v, j+1, der, n);
-	}
-}
-
-void ord_rapida_dico(cota_t *v, int n, int punto) {
-	OrdenarAux_dico(v, 0, n-1, punto);
-	if (UMBRAL_DICO > 1){
-		ord_ins_dico(v, n, punto, punto); // Fix punto ini punto fin
-	}
-}
-//
-
-sit_dico initStudyCase(char *name, void (*ini)(int [], int)){
-	sit_dico caso;
-	strcpy(caso.sit_name, name);
-	caso.func = ini;
-	return caso;
-}
-
-alg_dico initAlgorithem(char *name, void (*func)(int [], int), sit_dico *sitDico, int ini, int mult,
-                        int fin, int nTemp){
-	int i;
-	alg_dico algoritmo;
-
-	strcpy(algoritmo.alg_name, name);
-	algoritmo.func = func;
-	algoritmo.ini = ini;
-	algoritmo.mult = mult;
-	algoritmo.fin = fin;
-	algoritmo.nTemp = nTemp;
-
-	for(i = 0; i<NUM_SITUATIONS; i++)
-		algoritmo.situation[i] = sitDico[i];
-
-	return algoritmo;
-}
-
-void printAlgorithemSituation(alg_dico *algoritmos){
-
-	int i,j;
-
-	for(i=0; i<NUM_ALGORITHEMS; i++){
-		printf("\t - %s - tamaño vector de %d a %d de %d en %d\n", algoritmos[i].alg_name,algoritmos[i].ini,algoritmos[i].fin, algoritmos[i].mult,algoritmos[i].mult);
-		for(j=0; j<NUM_SITUATIONS; j++){
-			printf("\t\t * situacion %s \n",algoritmos[i].situation[j].sit_name);
-		}
-	}
-	printf("\n");
-}
-
 
 void printFuncs(funcion *funcs){
 	int i;
@@ -397,92 +296,10 @@ void acotarComplejidad(sit_dico *sit, cota_t cotas[], int numCotas, int numValor
 	//printf("%s\t %s\t %s\n", sit->sobre.cota.name, sit->ajus.cota.name, sit->sub.cota.name);
 }
 
-void mostrarCotas(alg_dico algoritmo[]){
-	int j, i, k;
-
-	int valN;
-	double tiempo;
-
-	for(i = 0; i<NUM_ALGORITHEMS; i++) {
-		for (j = 0;  j< NUM_SITUATIONS; j++) {
-
-			printf("\n-------------------------------------------------------------\n");
-			printf("\nOrdenación %s con inicialización %s\n\n", algoritmo[i].alg_name
-					, algoritmo[i].situation[j].sit_name);
-
-			printf("   %-10s%-15s%-15s%-15s%-15s\n", "n", "t(n)",algoritmo[i].situation[j].sobre.cota.name,algoritmo[i].situation[j].ajus.cota.name,algoritmo[i].situation[j].sub.cota.name);
-
-			for (k = 0; k<algoritmo[i].nTemp; k++) {
-
-				valN = algoritmo[i].situation[j].valN[k];
-				tiempo = algoritmo[i].situation[j].tiempos[k].tiempo;
-
-				if(algoritmo[i].situation[j].tiempos->is_under_500) {
-
-					printf("(*)%-10d%-15.5f%-15.8f%-15.8f%-15.8f\n", valN, tiempo,
-					       tiempo / execute(algoritmo[i].situation[j].sobre.cota, valN, algoritmo[i].situation[j].sobre.exp,0),
-					       tiempo / execute(algoritmo[i].situation[j].ajus.cota, valN, algoritmo[i].situation[j].ajus.exp,0),
-					       tiempo / execute(algoritmo[i].situation[j].sub.cota, valN, algoritmo[i].situation[j].sub.exp,0)
-					);
-				} else {
-					printf("   %-10d%-15.5f%-15.8f%-15.8f%-15.8f\n", valN, tiempo,
-					       tiempo / execute(algoritmo[i].situation[j].sobre.cota, valN, algoritmo[i].situation[j].sobre.exp,0),
-					       tiempo / execute(algoritmo[i].situation[j].ajus.cota, valN, algoritmo[i].situation[j].ajus.exp,0),
-					       tiempo / execute(algoritmo[i].situation[j].sub.cota, valN, algoritmo[i].situation[j].sub.exp,0)
-					);
-				}
-			}
-		}
-	}
-}
-
-/* Test Lectura Tiempos */
-void testTiempos(alg_dico * algoritmo){
-	int i,j,k;
-	int n;
-
-	for( i = 0; i<2; i++){
-		printf("\n\t Algoritmo > %s\n", algoritmo[i].alg_name);
-		for (k= 0; k<3; k++) {
-			n = algoritmo[i].ini;
-			printf("\n\t\t Metodo > %s\n", algoritmo[i].situation[k].sit_name);
-			for (j = 0; j < algoritmo[i].nTemp; j++) {
-				printf("\t\t\t%d > %f \n", n,algoritmo[i].situation[k].tiempos[j].tiempo);
-				n = n*algoritmo[i].mult;
-			}
-		}
-	}
-}
-
-void buscarCotas(alg_dico algoritmos[], cota_t cotas[], int numCotas){
-	int i,j;
-
-	for(i = 0; i < NUM_ALGORITHEMS; i++){
-		for(j = 0; j < NUM_SITUATIONS; j++){
-			acotarComplejidad(&algoritmos[i].situation[j], cotas, numCotas, algoritmos[i].nTemp);
-		}
-	}
-	mostrarCotas(algoritmos);
-}
-
-
-void lecturaTiempos(alg_dico *algoritmo){
-	int i;
-	int j;
-
-	printf(" - Leyendo tiempos \n");
-	printf(" ************************************ \n");
-	for(i = 0; i<2; i++){
-		for(j = 0; j<3; j++) {
-			leerTiempos(algoritmo[i], algoritmo[i].situation[j] ,algoritmo[i].situation[j].tiempos,
-					algoritmo[i].situation[j].valN);
-		}
-	}
-	testTiempos(algoritmo);
-}
-
-
-void cargarTiemposEstaticos(alg_dico algoritmos[]){
-	testBuscarCotas(algoritmos);
-	testTiempos(algoritmos);
-}
+/* obtiene la hora actual en microsegundos */
+double microsegundos(){
+	struct timeval t;
+	if (gettimeofday(&t, NULL) < 0)
+		return 0.0;
+	return (t.tv_usec + t.tv_sec * 1000000.0);
+}/* obtiene la hora actual en microsegundos */
