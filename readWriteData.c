@@ -86,29 +86,3 @@ int loadCachedTime(alg_dico alg[]) {
 	fclose(file);
 	return 0;
 }
-
-/*
- while (i < NUM_ALGORITHEMS && j < NUM_ALGORITHEMS  && fgets(buff,255,file) != NULL) {
-
-			if(strchr(buff,'$')){
-
-				strcpy(alg[i].alg_name, strtok(buff,"$"));
-				printf(" sit > %s",alg[i].alg_name);
-				i++;
-			} else if(strchr(buff,'&')){
-				printf(" alg > %s",alg[i].situation[j].sit_name);
-				strcpy(alg[i].situation[j].sit_name, strtok(buff,"&"));
-				alg[i].nTemp = k;
-				k = 0;
-				j++;
-			} else {
-				printf("%s",buff);
-				alg[i].situation[j].valN[k] = (int)strtol(strtok(buff,","),NULL,10);
-				alg[i].situation[j].tiempos[k].tiempo = strtol(strtok(buff,","),NULL,10);
-				alg[i].situation[j].tiempos[k].is_under_500 = (int) strtol(strtok(buff,","),NULL,10);
-				k++;
-			}
-
-
-		}
- */

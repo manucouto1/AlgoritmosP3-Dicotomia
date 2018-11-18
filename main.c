@@ -28,6 +28,22 @@ typedef struct {
 	char sinonimos [LONGITUD_SINONIMOS];
 } item;
 
+void inicializar (tabla_cerrada diccionario, int tam){
+	int i;
+
+	for(i = 0; i < tam; i++){
+		diccionario[i].ocupada = 0;
+		strcpy(diccionario[i].clave ,"");
+		strcpy(diccionario[i].sinonimos ,"");
+	}
+
+}
+
+void freeMem( tabla_cerrada *diccionario, int tam){
+	int i;
+	for (i=0; i<tam; i++)
+			free(diccionario[i]);
+}
 
 int dispersionA(char *clave, int tamTabla) {
 	int i, valor = clave[0], n = MIN(8, strlen(clave));
@@ -35,6 +51,38 @@ int dispersionA(char *clave, int tamTabla) {
 		valor += clave[i];
 
 	return valor % tamTabla;
+}
+
+int dispersionB(char *clave, int tamTabla) {
+	int i, n = MIN(8, strlen(clave));
+	unsigned int valor = clave[0];
+	for (i = 1; i < n; i++)
+		valor = (valor<<5) + clave[i]; /* el desplazamiento de 5 bits equivale a */
+	return valor % tamTabla; /* multipicar por 32 */
+}
+
+unsigned int resol_colision_lineal (int pos_ini, int num_intento){
+	return (unsigned int) num_intento;
+}
+
+unsigned int resol_colision_cuadratica (int pos_ini, int num_intento){
+	return (unsigned int) pow(num_intento,2);
+}
+
+unsigned int resol_colision_exploracion_doble (int pos_ini, int num_intento){
+	int sol;
+
+	if(pos_ini == 0)
+		pos_ini = 5;
+
+	int divid = (5 - pos_ini);
+
+	if(divid > 0)
+		sol = divid % 5;
+	else
+		sol =  (5 + divid%5);
+
+	return (unsigned int)sol*num_intento;
 }
 
 int ndispersion(char *clave, int tamTabla) {
@@ -73,13 +121,16 @@ int leer_sinonimos(item datos[]) {
 pos buscar_cerrada(char *clave, tabla_cerrada diccionario, int tam,
                    int *colisiones, int (*dispersion)(char *, int),
                    unsigned int (*resol_colision)(int pos_ini, int num_intento)){
+
 	int x = dispersion(clave, tam);
 	int posActual = x;
 
-	while ((diccionario[posActual].ocupada)&&(diccionario[posActual].clave != clave)){
-		*colisiones = *colisiones + 1;
-		posActual = (x + resol_colision(x,*colisiones)) % MAX_N;
-	}
+	 if((diccionario[posActual].ocupada)&&(strcmp(diccionario[posActual].clave,clave)!=0))
+		do{
+			*colisiones = *colisiones + 1;
+			posActual = (x + resol_colision(x,*colisiones))%tam;
+
+		}while((diccionario[posActual].ocupada) && (strcmp(diccionario[posActual].clave,clave)!=0) && posActual!=x);
 
 	return posActual;
 }
@@ -87,18 +138,62 @@ pos buscar_cerrada(char *clave, tabla_cerrada diccionario, int tam,
 int insertar_cerrada(char *clave, char *sinonimos,
                      tabla_cerrada *diccionario, int tam,
                      int (*dispersion)(char *, int),
-                     unsigned int (*resol_colision)(int pos_ini, int num_intento));
+                     unsigned int (*resol_colision)(int pos_ini, int num_intento)){
+	int colisiones = 0;
+	pos pos = buscar_cerrada(clave, *diccionario, tam, &colisiones, dispersion, resol_colision);
+
+	if(!(*diccionario)[pos].ocupada){
+		(*diccionario)[pos].ocupada = 1;
+		strcpy((*diccionario)[pos].clave,clave);
+		strcpy((*diccionario)[pos].sinonimos,sinonimos);
+		return colisiones;
+	}
+	return -1;
+}
 
 void mostrar_cerrada(tabla_cerrada diccionario, int tam){
 	int i;
 
-	printf("{");
+	printf("{\n");
 	for(i = 0; i<tam; i++){
-		printf("%d- %s\n",i,diccionario->clave);
+		printf("%d- %s\n",i,diccionario[i].clave);
 	}
-	printf("}");
+	printf("}\n");
 
 }
+
+
+int test( int tam, unsigned int (*resol_colision)(int pos_ini, int num_intento)) {
+	tabla_cerrada dicc = malloc(sizeof(entrada)*tam);
+	item data[tam];
+
+	int pos = 0;
+	char *claves[7] = {"ANA","LUIS","JOSE","OLGA","ROSA","IVAN","CARLOS"};
+	int i;
+	int colisiones = 0;
+
+	inicializar(dicc, tam);
+
+	for(i = 0; i<6; i++)
+		colisiones += insertar_cerrada(claves[i], "",
+				&dicc, tam, ndispersion, resol_colision);
+
+
+	mostrar_cerrada(dicc, tam);
+	printf("Numero total de colisiones al insertar los elementos: %d\n",colisiones);
+
+	for(i = 0; i<7; i++){
+		colisiones = 0;
+		pos = buscar_cerrada(claves[i], dicc, tam, &colisiones, ndispersion, resol_colision);
+		if(dicc[pos].ocupada>0)
+			printf("AL buscar %s, encuentro: %s, colisiones: %d\n", claves[i], dicc[pos].clave ,colisiones);
+		else
+			printf("No encuentro: %s, colisiones: %d\n", claves[i],colisiones);
+	}
+
+	free(dicc);
+}
+
 
 /* obtiene la hora actual en microsegundos */
 double microsegundos(){
@@ -465,7 +560,7 @@ void testBuscarCotas(alg_dico *algoritmos){
 
 
 int main() {
-
+	/*
 	int nCotas;
 
 	funcion funcs[NUM_FUNCT];
@@ -497,4 +592,12 @@ int main() {
 	//tabla_cerrada d = malloc (MAX_N * sizeof(entrada));
 
 	free(cotasEstudio);
+	 */
+
+	printf("***TABLA CERRADA LINEAL\n");
+	//test(11, resol_colision_lineal);
+	printf("***TABLA CERRADA CUADRATICA\n");
+	//test(11, resol_colision_cuadratica);
+	printf("***TABLA CERRADA DOBLE\n");
+	test(11, resol_colision_exploracion_doble);
 }
