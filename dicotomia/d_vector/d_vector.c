@@ -233,7 +233,6 @@ void leerTiempo_v(alg_dico_vector algoritmo, sit_dico_vector situacion, time_dic
 	typeIntVector ini = situacion.func;
 	typeIntVector ord = algoritmo.func;
 
-	//Crear objeto algoritmo
 	int inicio = algoritmo.alg.ini;
 	int fin = algoritmo.alg.fin;
 	int mult = algoritmo.alg.mult;
@@ -242,13 +241,13 @@ void leerTiempo_v(alg_dico_vector algoritmo, sit_dico_vector situacion, time_dic
 	printf("ALGORITMO > %s\n",algoritmo.alg.alg_name);
 	printf("\tSITUATION > %s\n",situacion.sit.sit_name);
 	for (n = inicio; n <= fin; n = n * mult) {
+		tamV[i]=n;
 		v = malloc(sizeof(int) * n);
 		ini(v, n);
 		ta = microsegundos();
 		ord(v, n);
 		tb = microsegundos();
 		t = tb - ta;
-		tamV[i]=n;
 
 		if (t < 500) {
 			ta = microsegundos();

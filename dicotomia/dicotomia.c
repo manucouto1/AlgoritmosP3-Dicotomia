@@ -56,7 +56,7 @@ void initCotas(funcion funcs[], cota_t *cotas, int *nCotas) {
 	for(i = 0; i<NUM_FUNCT; i++){
 
 		if(funcs[i].isComplex){
-			j = 1.1;
+			j = 0.3;
 			while(j < 3.0){
 				cotas[*nCotas].cota = funcs[i];
 				cotas[*nCotas].exp = j;
@@ -150,44 +150,38 @@ int tendencia(double umbral_tolerancia, cota_t cota ,int nVector[], time_dico ti
 	long double n;
 	long double n_mas_uno;
 
-	// estado Anomalo = 0 -> el resultado anterior fue el esperado
-	// estado Anomalo = 1 -> el resultado anterior cambia la tendencia
-
-	// Si n < n_mas_uno -> ( n_mas_uno - n + umbral > 0 ) -> crece
-	// Si n > n_mas_uno -> ( n - n_mas_uno + umbral > 0 ) -> decrece
-	// Si n == n_mas_uno -> ( n_mas_uno - n < umbral ) -> ajustada
-
-	// El umbral lo usamos para que tenga cierta tolerancia a mediciones extrañas
-	// TODO - Hay que definir un comportamiento para los casos en los que no sea extrictamente creciente/decreciente/cte
-	// TODO - He pensado en hacer un pequeño autómata como en EC para que sigua
 
 	n = (tiempos[0].tiempo / execute(cota.cota, nVector[0],cota.exp,0));
+
 	printf(" - Nombre F(n) = %-13s | f(n) = %-24f | t = %-20f | t/f(n) = %-20.15Lf\n", cota.cota.name,
 	       execute(cota.cota, nVector[0],cota.exp,0), tiempos[0].tiempo, n);
 
 	while (i < (nArgs - 1) && tend >= -1) {
 
 		n_mas_uno = (tiempos[i + 1].tiempo / execute(cota.cota, nVector[i + 1],cota.exp,0));
+
 		printf(" - Nombre F(n) = %-13s | f(n) = %-24f | t = %-20f | t/f(n) = %-20.15Lf\n", cota.cota.name,
 		       execute(cota.cota, nVector[i],cota.exp,0), tiempos[i].tiempo, n_mas_uno);
 
-		if (n_mas_uno - n + ((n_mas_uno - n)*umbral_tolerancia) > 0){
+		if (n_mas_uno - n + (fabs((double)(n_mas_uno - n))*umbral_tolerancia) > 0){
 			if(!anomalo){
-				if(tend == 7 || tend == 1) // tend == 7 es para la primera iteración
+				if(tend == 7 || tend == 1) { // tend == 7 es para la primera iteración
+					anomalo = 0;
 					tend = 1; // Crece
-				else {
+				} else {
 					anomalo = 1;
 					tend = 1; // avisamos de que ha habido una dato anómalo
 				}
 			} else {
 				if( tend == 1 ){
 					tend = 1; // Crece
+					anomalo = 0;
 				} else {
 					tend = -2; // optamos por dar el resultado por erroneo, demasiados datos erroneos
 				}
 			}
 
-		} else if (n - n_mas_uno + fabs((double)(1000000*n - 1000000*n_mas_uno)/1000000)*umbral_tolerancia > 0){
+		} else if (n - n_mas_uno + fabs((double)(n - n_mas_uno))*umbral_tolerancia > 0){
 			if(!anomalo){
 				if(tend == 7 || tend == -1) { // tend == 7 es para la primera iteración
 					tend = -1; // Decrece
@@ -199,11 +193,12 @@ int tendencia(double umbral_tolerancia, cota_t cota ,int nVector[], time_dico ti
 			} else {
 				if( tend == -1 ){
 					tend = -1;
+					anomalo = 0;
 				} else {
 					tend = -2; // optamos por dar el resultado por erroneo, demasiados datos erroneos
 				}
 			}
-		} else if (fabs((double)(1000000*n - 1000000*n_mas_uno)/1000000)*umbral_tolerancia < umbral_tolerancia){
+		} else if (fabs((double)(n - n_mas_uno))*umbral_tolerancia < umbral_tolerancia){
 			if(!anomalo){
 				if(tend == 7 || tend == 0) { // tend == 7 es para la primera iteración
 					anomalo = 0;
@@ -215,6 +210,7 @@ int tendencia(double umbral_tolerancia, cota_t cota ,int nVector[], time_dico ti
 			} else {
 				if( tend == 0 ){
 					tend = 0;
+					anomalo = 0;
 				} else {
 					tend = -2; // optamos por dar el resultado por erroneo, demasiados datos erroneos
 				}
@@ -275,6 +271,7 @@ void acotarComplejidad(sit_dico *sit, cota_t cotas[], int numCotas, int numValor
 			} else {
                 pibSub++;
 				printf(" ^ >>>>>> SUBESTIMADA <<<<<   %d\n", pibSub);
+				printf(" %s\n",cotas[pibSub].cota.name);
 				interCambioCotas(&sit->sub, &cotas[pibSub]);
 				succesSub = 1;
 			}

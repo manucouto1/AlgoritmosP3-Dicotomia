@@ -8,7 +8,7 @@ int cacheTimeData_h(alg_dico_hash alg[]) {
 
 	FILE *file;
 
-	file = fopen(CACHE_FILE_NAME, "w");
+	file = fopen(CACHE_FILE_NAME_H, "w");
 
 	if (file != NULL){
 		for (i = 0; i < NUM_ALGORITHEMS; i++) {
@@ -42,7 +42,7 @@ int loadCachedTime_h(alg_dico_hash alg[]) {
 	char *aux;
 	char *aux2;
 
-	file = fopen(CACHE_FILE_NAME, "r");
+	file = fopen(CACHE_FILE_NAME_H, "r");
 
 	if (file != NULL) {
 		while (fgets(buff,1024,file)) {

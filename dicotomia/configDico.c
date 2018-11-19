@@ -13,13 +13,13 @@ void initFuncs(funcion *funcs){
 	funcion N = {"n",0,1};
 	funcion NxLogN = {"n*log(n)",0,2};
 	funcion Nexp_x = {"n^$",1,3};
-	funcion Nexp_x_LOG = {"n^$*log(n)",1,4};
+	//funcion Nexp_x_LOG = {"n^$*log(n)",1,4};
 
 	funcs[0] = LOG;
 	funcs[1] = N;
 	funcs[2] = NxLogN;
 	funcs[3] = Nexp_x;
-	funcs[4] = Nexp_x_LOG;
+	//funcs[4] = Nexp_x_LOG;
 	printf("\n");
 
 }

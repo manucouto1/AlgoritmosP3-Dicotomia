@@ -9,7 +9,7 @@
 #define UMBRAL_DICO 10
 
 #define NUM_SITUATIONS 3
-#define NUM_FUNCT 5
+#define NUM_FUNCT 4
 #define NUM_ALGORITHEMS 2
 
 

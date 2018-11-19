@@ -2,8 +2,6 @@
 
 #define UMBRAL 1
 
-#define ERROR 0.9
-
 void inicializar_semilla() {
 	srand(time(NULL));
 }
@@ -103,6 +101,7 @@ alg_dico_vector initAlgorithems_v(alg_dico_vector algoritmos[]){
 	// Esta parte la cambiariamos para cada problema a estudiar,
 	// por ejemplo si no hace falta ordenar no habria estas funciones
 	int i = 0;
+	inicializar_semilla();
 	printf(" - Inicializando Algoritmos \n");
 	printf(" ************************************ \n");
 	sit_dico_vector situations[NUM_SITUATIONS] = {

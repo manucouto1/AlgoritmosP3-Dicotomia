@@ -1,19 +1,44 @@
 #include "d_hash.h"
 
-/*
- * TODO - Ver que parametros vamos a necesitar mostrar
- */
+
 void printAlgorithemAndSituation_h(alg_dico_hash *algoritmos){
 	int i,j;
 
 	for(i=0; i<NUM_ALGORITHEMS; i++){
-		printf("\t - %s - tamaño vector de %d a %d de %d en %d\n", algoritmos[i].alg.alg_name,
-				algoritmos[i].alg.ini ,algoritmos[i].alg.fin, algoritmos[i].alg.mult,algoritmos[i].alg.mult);
+		printf("\t - %s \n", algoritmos[i].alg.alg_name);
 		for(j=0; j<NUM_SITUATIONS; j++){
 			printf("\t\t * situacion %s \n",algoritmos[i].situation[j].sit.sit_name);
 		}
 	}
 	printf("\n");
+}
+
+sit_dico_hash initStudyCase_h(char *name, typeResColision res_colision, tabla_cerrada diccionario){
+	sit_dico_hash caso;
+	strcpy(caso.sit.sit_name, name);
+	caso.func = res_colision;
+	caso.diccionario = diccionario;
+	return caso;
+}
+
+alg_dico_hash initAlgorithem_h(char *name, item datos[], typeDispersion func, type_buscar_cerrada buscar_cerrada, type_insertar_datos insertar_datos,
+                               sit_dico_hash sitDico[], int ini, int fin, int mult, int nTemp){
+	int i;
+	alg_dico_hash algoritmo;
+	algoritmo.datos = malloc(sizeof(item)*NUM_ENTRADAS);
+	memcpy(algoritmo.datos, datos, NUM_ENTRADAS * sizeof(item)); // Esto a vere si no casca
+	strcpy(algoritmo.alg.alg_name, name);
+	algoritmo.func = func;
+	algoritmo.buscar_cerrada = buscar_cerrada;
+	algoritmo.insertar_datos = insertar_datos;
+	algoritmo.alg.ini = ini;
+	algoritmo.alg.mult = mult;
+	algoritmo.alg.fin = fin;
+	algoritmo.alg.nTemp = nTemp;
+
+	memcpy(algoritmo.situation, sitDico, NUM_SITUATIONS * sizeof(sit_dico_hash));
+
+	return algoritmo;
 }
 
 void mostrarCotas_h(alg_dico_hash algoritmo[]){
@@ -29,7 +54,7 @@ void mostrarCotas_h(alg_dico_hash algoritmo[]){
 			printf("\nOrdenación %s con inicialización %s\n\n", algoritmo[i].alg.alg_name
 					, algoritmo[i].situation[j].sit.sit_name);
 
-			printf("   %-10s%-15s%-15s%-15s%-15s\n", "n", "t(n)",algoritmo[i].situation[j].sit.sobre.cota.name,
+			printf("   %-10s%-15st(n)/%-10st(n)/%-10st(n)/%-10s\n", "n", "t(n)",algoritmo[i].situation[j].sit.sobre.cota.name,
 					algoritmo[i].situation[j].sit.ajus.cota.name,algoritmo[i].situation[j].sit.sub.cota.name);
 
 			for (k = 0; k<algoritmo[i].alg.nTemp; k++) {
@@ -83,21 +108,96 @@ void testTiempos_h(alg_dico_hash * algoritmo){
 		}
 	}
 }
+
+void leerTiempo_h(alg_dico_hash algoritmo, sit_dico_hash situacion, time_dico tiempos[], int valoresN[]){
+	double ta, tb, t, ti;
+	int k, n, i, aleatorio, j = 0, colision = 0;
+
+	typeResColision resColision = situacion.func;
+	typeDispersion dispersion = algoritmo.func;
+	type_buscar_cerrada buscar_cerrada = algoritmo.buscar_cerrada;
+
+	int ini = algoritmo.alg.ini;
+	int fin = algoritmo.alg.fin;
+	int mult = algoritmo.alg.mult;
+
+	printf("ALGORITMO > %s\n",algoritmo.alg.alg_name);
+	printf("\tSITUATION > %s\n",situacion.sit.sit_name);
+
+	for(n = ini; n<=fin; n*=mult){
+		valoresN[j]=n;
+		ta = microsegundos();
+		for(i=0; i<n; i++){
+			aleatorio = rand() % MAX_N;
+			buscar_cerrada(situacion.diccionario[aleatorio].clave, situacion.diccionario, MAX_N, &colision, dispersion, resColision);
+		}
+		tb = microsegundos();
+		t = tb - ta;
+
+		ta = microsegundos();
+		for (i = 0; i < n; i++) {
+			aleatorio = rand() % MAX_N;
+		}
+		tb = microsegundos();
+		ti = tb - ta;
+		t = t - ti;
+		if (t < 500) {
+			ta = microsegundos();
+			for (k = 0; k < 1000; k++) {
+				for (i = 0; i < n; i++) {
+					aleatorio = rand() % MAX_N;
+					buscar_cerrada(situacion.diccionario[aleatorio].clave, situacion.diccionario, MAX_N, &colision, dispersion, resColision);
+				}
+			}
+			tb = microsegundos();
+			t = tb - ta;
+
+			ta = microsegundos();
+			for (k = 0; k < 1000; k++) {
+				for (i = 0; i < n; i++) {
+					aleatorio = rand() % MAX_N;
+				}
+			}
+			tb = microsegundos();
+
+			ti = tb - ta;
+			t = (t - ti) / k;
+			tiempos[j] = (time_dico){1,t};
+			printf("\t\t > tiempo %f \n", tiempos[j].tiempo);
+
+		} else {
+			tiempos[j] = (time_dico){0,t};
+			printf("\t\t > tiempo %f \n", tiempos[j].tiempo);
+		}
+		j++;
+	}
+
+
+}
+
 /*
  * TODO - implementar el leerTiempos de Hash
  */
-void lecturaTiempos_h(alg_dico_hash *algoritmo){
+void lecturaTiempos_h(alg_dico_hash algoritmo[]){
 	int i;
 	int j;
-	/*
+
 	printf(" - Leyendo tiempos \n");
 	printf(" ************************************ \n");
 	for(i = 0; i<2; i++){
 		for(j = 0; j<3; j++) {
-			leerTiempos(algoritmo[i], algoritmo[i].situation[j] ,algoritmo[i].situation[j].tiempos,
-			            algoritmo[i].situation[j].valN);
+			if(algoritmo[i].insertar_datos(algoritmo[i].datos,
+					&algoritmo[i].situation[j].diccionario,
+					algoritmo[i].func,
+					algoritmo[i].situation[j].func)) {
+
+				leerTiempo_h(algoritmo[i], algoritmo[i].situation[j], algoritmo[i].situation[j].sit.tiempos,
+				             algoritmo[i].situation[j].sit.valN);
+			} else {
+				printf(" - PROBLEMAS al insertando datos para %s con %s\n", algoritmo[i].alg.alg_name, algoritmo[i].situation[j].sit.sit_name);
+			}
 		}
 	}
-	 */
-	testTiempos_h(algoritmo);
+
+	//testTiempos_h(algoritmo);
 }

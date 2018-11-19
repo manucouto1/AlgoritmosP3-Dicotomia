@@ -1,4 +1,7 @@
+#ifndef HEADER_DICOTOMIA
+#define HEADER_DICOTOMIA
 #include "../dicotomia.h"
+#endif
 typedef void (*typeIntVector)(int v[], int nargs);
 
 /* Registros CONCRETOS ORDENACION VECTORES */

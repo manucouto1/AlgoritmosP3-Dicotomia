@@ -9,5 +9,6 @@ add_executable(AlgoritmosP3 main.c
         dicotomia/d_hash_tables/persist_to_txt/readWriteData_h.c
         dicotomia/configDico.c
         dicotomia/d_vector/test_d_vector/test_v.c
+        dicotomia/d_hash_tables/test_d_hash/test_h.c
         dicotomia/d_vector/d_vector.c
         dicotomia/d_hash_tables/d_hash.c)
