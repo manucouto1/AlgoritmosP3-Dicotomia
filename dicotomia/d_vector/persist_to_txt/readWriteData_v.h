@@ -1,4 +1,7 @@
+#ifndef HEADER_D_VECTOR
+#define HEADER_D_VECTOR
 #include "../d_vector.h"
+#endif
 
 #define CACHE_FILE_NAME_V "../tmp/tmpCachedData_v.txt"
 

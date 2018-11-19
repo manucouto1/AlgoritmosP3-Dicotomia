@@ -1,5 +1,8 @@
 #include <math.h>
+#ifndef HEADER_DICOTOMIA
+#define HEADER_DICOTOMIA
 #include "dicotomia.h"
+#endif
 
 
 /*Algoritmos de ordenación*/
@@ -300,3 +303,9 @@ double microsegundos(){
 		return 0.0;
 	return (t.tv_usec + t.tv_sec * 1000000.0);
 }/* obtiene la hora actual en microsegundos */
+
+void putCotasManually(sit_dico *sit, cota_t sobre, cota_t ajus, cota_t sub){
+	sit->sobre = sobre;
+	sit->ajus = ajus;
+	sit->sub = sub;
+}

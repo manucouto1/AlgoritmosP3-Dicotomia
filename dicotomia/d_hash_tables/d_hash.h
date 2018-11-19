@@ -53,7 +53,8 @@ typedef struct {
 } alg_dico_hash;
 
 /* CONCRETE PROBLEM HASH TABLES API */
-alg_dico_hash initAlgorithems_h(alg_dico_hash *algoritmos);
+alg_dico_hash initAlgorithems_h_manual(alg_dico_hash algoritmos[]);
+alg_dico_hash initAlgorithems_h(alg_dico_hash algoritmos[]);
 sit_dico_hash initStudyCase_h(char *name, typeResColision res_colision, tabla_cerrada diccionario);
 alg_dico_hash initAlgorithem_h(char *name, item datos[], typeDispersion func,
 		type_buscar_cerrada buscar_cerrada, type_insertar_datos insertar_datos,
@@ -66,3 +67,5 @@ void mostrarCotas_h(alg_dico_hash algoritmo[]);
 /* Test Lectura Tiempos */
 void leerTiempo_h(alg_dico_hash algoritmo, sit_dico_hash situacion, time_dico tiempos[], int valoresN[]);
 void lecturaTiempos_h(alg_dico_hash algoritmo[]);
+
+void testResDispersion();

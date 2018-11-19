@@ -61,7 +61,7 @@ void mostrarCotas_v(alg_dico_vector algoritmo[]){
 				valN = algoritmo[i].situation[j].sit.valN[k];
 				tiempo = algoritmo[i].situation[j].sit.tiempos[k].tiempo;
 
-				if(algoritmo[i].situation[j].sit.tiempos->is_under_500) {
+				if(algoritmo[i].situation[j].sit.tiempos[k].is_under_500) {
 
 					printf("(*)%-10d%-15.5f%-15.8f%-15.8f%-15.8f\n", valN, tiempo,
 					       tiempo / execute(algoritmo[i].situation[j].sit.sobre.cota, valN, algoritmo[i].situation[j].sit.sobre.exp,0),

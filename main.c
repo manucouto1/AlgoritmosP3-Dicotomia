@@ -3,7 +3,6 @@
 #include "dicotomia/d_vector/persist_to_txt/readWriteData_v.h"
 #include "dicotomia/d_hash_tables/persist_to_txt/readWriteData_h.h"
 
-
 void calculoCompAlgOrdenacion(){
 
 	//COTAS
@@ -62,29 +61,35 @@ void calculoCompHashingTables(){
 	printCotas(cotasEstudio, nCotas);
 
 	// Inicializamos Algoritmos
-	initAlgorithems_h(algoritmos);
+	//initAlgorithems_h(algoritmos);
+	initAlgorithems_h_manual(algoritmos);
 	//printAlgorithemAndSituation_h(algoritmos);
 
-	lecturaTiempos_h(algoritmos);
+	//lecturaTiempos_h(algoritmos);
 	//cacheTimeData_h(algoritmos);
 
-	//loadCachedTime_h(algoritmos);
+	loadCachedTime_h(algoritmos);
 
 	buscarCotas_h(algoritmos, cotasEstudio, nCotas);
 	free(cotasEstudio);
 }
 
+void busquedaCotasManual(){
+	alg_dico_hash algoritmos[NUM_ALGORITHEMS];
+
+	initAlgorithems_h_manual(algoritmos);
+
+	//lecturaTiempos_h(algoritmos);
+	loadCachedTime_h(algoritmos);
+
+	mostrarCotas_h(algoritmos);
+}
 
 int main() {
 
-
-	//printf("***TABLA CERRADA LINEAL\n");
-	//test(11, resol_colision_lineal);
-	//printf("***TABLA CERRADA CUADRATICA\n");
-	//test(11, resol_colision_cuadratica);
-	//printf("***TABLA CERRADA DOBLE\n");
-	//test(11, resol_colision_exploracion_doble);
+	//testResDispersion();
 	calculoCompHashingTables();
+	//busquedaCotasManual();
 	//calculoCompAlgOrdenacion();
 	return 0;
 

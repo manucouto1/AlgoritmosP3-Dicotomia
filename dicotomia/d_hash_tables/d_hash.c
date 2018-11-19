@@ -1,5 +1,7 @@
+#ifndef HEADER_D_HASH
+#define HEADER_D_HASH
 #include "d_hash.h"
-
+#endif
 
 void printAlgorithemAndSituation_h(alg_dico_hash *algoritmos){
 	int i,j;
@@ -62,7 +64,7 @@ void mostrarCotas_h(alg_dico_hash algoritmo[]){
 				valN = algoritmo[i].situation[j].sit.valN[k];
 				tiempo = algoritmo[i].situation[j].sit.tiempos[k].tiempo;
 
-				if(algoritmo[i].situation[j].sit.tiempos->is_under_500) {
+				if(algoritmo[i].situation[j].sit.tiempos[k].is_under_500) {
 
 					printf("(*)%-10d%-15.5f%-15.8f%-15.8f%-15.8f\n", valN, tiempo,
 					       tiempo / execute(algoritmo[i].situation[j].sit.sobre.cota, valN, algoritmo[i].situation[j].sit.sobre.exp,0),
@@ -163,7 +165,7 @@ void leerTiempo_h(alg_dico_hash algoritmo, sit_dico_hash situacion, time_dico ti
 			ti = tb - ta;
 			t = (t - ti) / k;
 			tiempos[j] = (time_dico){1,t};
-			printf("\t\t > tiempo %f \n", tiempos[j].tiempo);
+			printf("\t\t > tiempo %f *\n", tiempos[j].tiempo);
 
 		} else {
 			tiempos[j] = (time_dico){0,t};

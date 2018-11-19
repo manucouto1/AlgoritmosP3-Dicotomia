@@ -1,4 +1,7 @@
+#ifndef HEADER_D_HASH
+#define HEADER_D_HASH
 #include "../d_hash.h"
+#endif
 
 
 void inicializar_cerrada(tabla_cerrada diccionario, int tam){
@@ -175,6 +178,15 @@ int test( int tam, unsigned int (*resol_colision)(int pos_ini, int num_intento))
 	free(dicc);
 }
 
+void testResDispersion(){
+	printf("***TABLA CERRADA LINEAL\n");
+	test(11, resol_colision_lineal);
+	printf("***TABLA CERRADA CUADRATICA\n");
+	test(11, resol_colision_cuadratica);
+	printf("***TABLA CERRADA DOBLE\n");
+	test(11, resol_colision_exploracion_doble);
+}
+
 alg_dico_hash initAlgorithems_h(alg_dico_hash algoritmos[]){
 
 	int i = 0;
@@ -224,6 +236,69 @@ alg_dico_hash initAlgorithems_h(alg_dico_hash algoritmos[]){
 					buscar_cerrada,
 					insertarDatos,
 					situations2, 125, 16000, 2, 8)
+	};
+
+	memcpy(algoritmos, aux, NUM_ALGORITHEMS * sizeof(alg_dico_hash));
+	printf("\n");
+}
+
+alg_dico_hash initAlgorithems_h_manual(alg_dico_hash algoritmos[]){
+
+	int i = 0;
+
+	tabla_cerrada diccionario1 = malloc(sizeof(entrada)*MAX_N);
+	tabla_cerrada diccionario2 = malloc(sizeof(entrada)*MAX_N);
+	tabla_cerrada diccionario3 = malloc(sizeof(entrada)*MAX_N);
+	tabla_cerrada diccionario4 = malloc(sizeof(entrada)*MAX_N);
+	tabla_cerrada diccionario5 = malloc(sizeof(entrada)*MAX_N);
+	tabla_cerrada diccionario6 = malloc(sizeof(entrada)*MAX_N);
+
+	item *datos = malloc(sizeof(item)*NUM_ENTRADAS);
+
+	inicializar_cerrada(diccionario1, MAX_N);
+	inicializar_cerrada(diccionario2, MAX_N);
+	inicializar_cerrada(diccionario3, MAX_N);
+	inicializar_cerrada(diccionario4, MAX_N);
+	inicializar_cerrada(diccionario5, MAX_N);
+	inicializar_cerrada(diccionario6, MAX_N);
+
+	leer_sinonimos(datos);
+
+	printf(" - Inicializando Algoritmos \n");
+	printf(" ************************************ \n");
+
+	sit_dico_hash sitResLinealA = initStudyCase_h("RESOLUCION LINEAL", resol_colision_lineal, diccionario1);
+	sit_dico_hash sitResCuadA = initStudyCase_h("RESOLUCION CUADRÁTICA",resol_colision_cuadratica, diccionario2);
+	sit_dico_hash sitResDobleA = initStudyCase_h("RESOLUCION DOBLE", resol_colision_exploracion_doble, diccionario3);
+
+	putCotasManually(&sitResLinealA.sit,(cota_t){N,0},(cota_t){Nexp_x,0.1},(cota_t){NxLogN,0});
+	putCotasManually(&sitResCuadA.sit,(cota_t){N,0},(cota_t){Nexp_x,0.1},(cota_t){NxLogN,0});
+	putCotasManually(&sitResDobleA.sit,(cota_t){N,0},(cota_t){Nexp_x,0.1},(cota_t){NxLogN,0});
+
+	sit_dico_hash situations1[NUM_SITUATIONS] = { sitResLinealA, sitResCuadA, sitResDobleA	};
+
+	sit_dico_hash sitResLinealB = initStudyCase_h("RESOLUCION LINEAL", resol_colision_lineal, diccionario4);
+	sit_dico_hash sitResCuadB = initStudyCase_h("RESOLUCION CUADRÁTICA",resol_colision_cuadratica, diccionario5);
+	sit_dico_hash sitResDobleB = initStudyCase_h("RESOLUCION DOBLE", resol_colision_exploracion_doble, diccionario6);
+
+	putCotasManually(&sitResLinealB.sit,(cota_t){N,0},(cota_t){Nexp_x,0.1},(cota_t){NxLogN,0});
+	putCotasManually(&sitResCuadB.sit,(cota_t){N,0},(cota_t){Nexp_x,0.1},(cota_t){NxLogN,0});
+	putCotasManually(&sitResDobleB.sit,(cota_t){N,0},(cota_t){Nexp_x,0.1},(cota_t){NxLogN,0});
+
+	sit_dico_hash situations2[NUM_SITUATIONS] = {sitResLinealB, sitResCuadB, sitResDobleB};
+
+	// Usar un Contenedor de aplicación para inyeccion de dependencias
+	alg_dico_hash aux [NUM_ALGORITHEMS] = {
+			initAlgorithem_h("DISPERSION A", datos,
+			                 dispersionA,
+			                 buscar_cerrada,
+			                 insertarDatos,
+			                 situations1, 125, 16000, 2, 8),
+			initAlgorithem_h("DISPERSION B", datos,
+			                 dispersionB,
+			                 buscar_cerrada,
+			                 insertarDatos,
+			                 situations2, 125, 16000, 2, 8)
 	};
 
 	memcpy(algoritmos, aux, NUM_ALGORITHEMS * sizeof(alg_dico_hash));

@@ -5,6 +5,13 @@
 #include <time.h>
 #include <math.h>
 
+
+#define LOG (funcion) {"log(n)",0,0}
+#define N (funcion) {"n",0,1}
+#define NxLogN (funcion) {"n*log(n)",0,2}
+#define Nexp_x (funcion) {"n^$",1,3}
+#define Nexp_x_LOG (funcion) {"n^$*log(n)",1,4}
+
 // Constantes Algoritmo Dicotomia
 #define UMBRAL_DICO 10
 
@@ -55,6 +62,7 @@ void printFuncs(funcion *funcs);
 void initCotas(funcion funcs[], cota_t *cotas, int *nCotas);
 void sortCotas(cota_t *cotas, int *nCotas, int puntoInicial, int puntoFinal);
 void printCotas(cota_t *cotas, int nCotas);
+void putCotasManually(sit_dico *sit, cota_t sobre, cota_t ajus, cota_t sub);
 
 void acotarComplejidad(sit_dico *sit, cota_t cotas[], int numCotas, int numValoresT);
 
