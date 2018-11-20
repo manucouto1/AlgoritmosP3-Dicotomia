@@ -14,9 +14,9 @@ void hundir(monticulo *heap, int mi){
 		hijoDer = 2 * mi + 2;
 		j = mi;
 
-		if (hijoDer <= TAM && heap->vector[hijoDer] > heap->vector[mi])
+		if (hijoDer <= heap->ultimo && heap->vector[hijoDer] > heap->vector[mi])
 			mi = hijoDer;
-		if (hijoIzq <= TAM && heap->vector[hijoIzq] > heap->vector[mi])
+		if (hijoIzq <= heap->ultimo && heap->vector[hijoIzq] > heap->vector[mi])
 			mi = hijoIzq;
 
 		aux = heap->vector[j];
@@ -67,11 +67,18 @@ void testHeap(){
 	ini_monticulo(&heap);
 	ascendente(v,7);
 	crear_montuculo(v,7,&heap);
+	printf("\n");
+	printf("Vector inicial \n");
+	for(i=0; i<=heap.ultimo; i++){
+		printf("|    v[%d] = %d ",i,v[i]);
+	}
+	printf("\n");
+	printf("\n");
+	printf("HEAP_______________________________________________________________________________________________\n");
 	for(i=0; i<=heap.ultimo; i++){
 		printf("| heap[%d] = %d ",i,heap.vector[i]);
 	}
 	printf("\n");
-
 	for(j=0; j<7; j++) {
 		r[j] = eliminar_mayor(&heap);
 		for (i = 0; i <= heap.ultimo; i++) {
@@ -79,9 +86,8 @@ void testHeap(){
 		}
 		printf("\n");
 	}
-
 	for(i = 0; i < 7; i++){
-		printf("| r[%d] = %d ", i, r[i]);
+		printf("|    r[%d] = %d ", i, r[i]);
 	}
 
 }
