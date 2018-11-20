@@ -1,16 +1,16 @@
-#include "d_vector.h"
+#include "d_sort.h"
 
-sit_dico_vector initStudyCase_v(char *name, typeIntVector ini){
-	sit_dico_vector caso;
+sit_dico_sort initStudyCase_s(char *name, typeIntVectorFunction ini){
+	sit_dico_sort caso;
 	strcpy(caso.sit.sit_name, name);
 	caso.func = ini;
 	return caso;
 }
 
-alg_dico_vector initAlgorithem_v(char *name,typeIntVector func, sit_dico_vector *sitDico, int ini, int mult,
+alg_dico_sort initAlgorithem_s(char *name,typeIntVectorFunction func, sit_dico_sort *sitDico, int ini, int mult,
                         int fin, int nTemp){
 	int i;
-	alg_dico_vector algoritmo;
+	alg_dico_sort algoritmo;
 
 	strcpy(algoritmo.alg.alg_name, name);
 	algoritmo.func = func;
@@ -19,15 +19,37 @@ alg_dico_vector initAlgorithem_v(char *name,typeIntVector func, sit_dico_vector 
 	algoritmo.alg.fin = fin;
 	algoritmo.alg.nTemp = nTemp;
 
-	memcpy(algoritmo.situation, sitDico, NUM_SITUATIONS * sizeof(sit_dico_vector));
+	memcpy(algoritmo.situation, sitDico, NUM_SITUATIONS * sizeof(sit_dico_sort));
 
 	return algoritmo;
+}
+
+void inicializar_semilla() {
+	srand(time(NULL));
+}
+
+void aleatorio(int v [], int n) {/* se generan números pseudoaleatorio entre -n y +n */
+	int i, m=2*n+1;
+	for (i=0; i < n; i++)
+		v[i] = (rand() % m) - n;
+}
+void ascendente(int v [], int n) {
+	int i;
+	for (i=0; i < n; i++)
+		v[i] = i;
+}
+void descendente (int v[], int n){
+	int i;
+
+	for (i = 0; i < n; i++) {
+		v[i] = n - i - 1;
+	}
 }
 
 /*
  * TODO - Ver que parametros vamos a necesitar mostrar
  */
-void printAlgorithemAndSituation_v(alg_dico_vector algoritmos[]){
+void printAlgorithemAndSituation_s(alg_dico_sort algoritmos[]){
 	int i,j;
 
 	for(i=0; i<NUM_ALGORITHEMS; i++){
@@ -40,7 +62,7 @@ void printAlgorithemAndSituation_v(alg_dico_vector algoritmos[]){
 	printf("\n");
 }
 
-void mostrarCotas_v(alg_dico_vector algoritmo[]){
+void mostrarCotas_s(alg_dico_sort algoritmo[]){
 	int j, i, k;
 
 	int valN;
@@ -53,8 +75,8 @@ void mostrarCotas_v(alg_dico_vector algoritmo[]){
 			printf("\nOrdenación %s con inicialización %s\n\n", algoritmo[i].alg.alg_name
 					, algoritmo[i].situation[j].sit.sit_name);
 
-			printf("   %-10s%-15s%-15s%-15s%-15s\n", "n", "t(n)",algoritmo[i].situation[j].sit.sobre.cota.name,
-			       algoritmo[i].situation[j].sit.ajus.cota.name,algoritmo[i].situation[j].sit.sub.cota.name);
+			printf("   %-10s%-15s%-15s%-15s%-15s%-7s\n", "n", "t(n)",algoritmo[i].situation[j].sit.sobre.cota.name,
+			       algoritmo[i].situation[j].sit.ajus.cota.name,algoritmo[i].situation[j].sit.sub.cota.name,"anomala");
 
 			for (k = 0; k<algoritmo[i].alg.nTemp; k++) {
 
@@ -63,16 +85,18 @@ void mostrarCotas_v(alg_dico_vector algoritmo[]){
 
 				if(algoritmo[i].situation[j].sit.tiempos[k].is_under_500) {
 
-					printf("(*)%-10d%-15.5f%-15.8f%-15.8f%-15.8f\n", valN, tiempo,
+					printf("(*)%-10d%-15.5f%-15.8f%-15.8f%-15.8f%7d\n", valN, tiempo,
 					       tiempo / execute(algoritmo[i].situation[j].sit.sobre.cota, valN, algoritmo[i].situation[j].sit.sobre.exp,0),
 					       tiempo / execute(algoritmo[i].situation[j].sit.ajus.cota, valN, algoritmo[i].situation[j].sit.ajus.exp,0),
-					       tiempo / execute(algoritmo[i].situation[j].sit.sub.cota, valN, algoritmo[i].situation[j].sit.sub.exp,0)
+					       tiempo / execute(algoritmo[i].situation[j].sit.sub.cota, valN, algoritmo[i].situation[j].sit.sub.exp,0),
+					       algoritmo[i].situation[j].sit.tiempos[k].is_anomalo
 					);
 				} else {
-					printf("   %-10d%-15.5f%-15.8f%-15.8f%-15.8f\n", valN, tiempo,
+					printf("   %-10d%-15.5f%-15.8f%-15.8f%-15.8f%7d\n", valN, tiempo,
 					       tiempo / execute(algoritmo[i].situation[j].sit.sobre.cota, valN, algoritmo[i].situation[j].sit.sobre.exp,0),
 					       tiempo / execute(algoritmo[i].situation[j].sit.ajus.cota, valN, algoritmo[i].situation[j].sit.ajus.exp,0),
-					       tiempo / execute(algoritmo[i].situation[j].sit.sub.cota, valN, algoritmo[i].situation[j].sit.sub.exp,0)
+					       tiempo / execute(algoritmo[i].situation[j].sit.sub.cota, valN, algoritmo[i].situation[j].sit.sub.exp,0),
+					       algoritmo[i].situation[j].sit.tiempos[k].is_anomalo
 					);
 				}
 			}
@@ -80,19 +104,21 @@ void mostrarCotas_v(alg_dico_vector algoritmo[]){
 	}
 }
 
-void buscarCotas_v(alg_dico_vector algoritmos[], cota_t cotas[], int numCotas){
+void buscarCotas_s(alg_dico_sort algoritmos[], cota_t cotas[], int numCotas){
 	int i,j;
 
 	for(i = 0; i < NUM_ALGORITHEMS; i++){
 		for(j = 0; j < NUM_SITUATIONS; j++){
 			acotarComplejidad(&algoritmos[i].situation[j].sit, cotas, numCotas, algoritmos[i].alg.nTemp);
+			printf("ALGORITMO -> %s \n",algoritmos[i].alg.alg_name);
+			printf("SITUACION -> %s \n",algoritmos[i].situation[j].sit.sit_name);
 		}
 	}
-	mostrarCotas_v(algoritmos);
+	mostrarCotas_s(algoritmos);
 }
 
 /* Test Lectura Tiempos */
-void testTiempos_v(alg_dico_vector * algoritmo){
+void testTiempos_s(alg_dico_sort * algoritmo){
 	int i,j,k;
 	int n;
 
@@ -110,7 +136,7 @@ void testTiempos_v(alg_dico_vector * algoritmo){
 }
 
 
-void loadStaticData(alg_dico_vector *algoritmos){
+void loadStaticData(alg_dico_sort *algoritmos){
 	int i;
 	int j;
 
@@ -217,21 +243,21 @@ void loadStaticData(alg_dico_vector *algoritmos){
 		}
 }
 
-void cargarTiemposEstaticos_v(alg_dico_vector algoritmos[]){
+void cargarTiemposEstaticos_s(alg_dico_sort algoritmos[]){
 	loadStaticData(algoritmos);
-	testTiempos_v(algoritmos);
+	testTiempos_s(algoritmos);
 }
 
 /*
  * DONE Leer los tiempos de un algoritmo en una situacion concreta
  */
-void leerTiempo_v(alg_dico_vector algoritmo, sit_dico_vector situacion, time_dico tiempos[], int *tamV){
+void leerTiempo_s(alg_dico_sort algoritmo, sit_dico_sort situacion, time_dico tiempos[], int *tamV){
 	double ta, tb, t, ti;
 	int k, n, i;
 	int *v;
 
-	typeIntVector ini = situacion.func;
-	typeIntVector ord = algoritmo.func;
+	typeIntVectorFunction ini = situacion.func;
+	typeIntVectorFunction ord = algoritmo.func;
 
 	int inicio = algoritmo.alg.ini;
 	int fin = algoritmo.alg.fin;
@@ -280,7 +306,7 @@ void leerTiempo_v(alg_dico_vector algoritmo, sit_dico_vector situacion, time_dic
 	}
 }
 
-void lecturaTiempos_v(alg_dico_vector algoritmos[]){
+void lecturaTiempos_s(alg_dico_sort algoritmos[]){
 	int i;
 	int j;
 
@@ -290,11 +316,11 @@ void lecturaTiempos_v(alg_dico_vector algoritmos[]){
 
 	for(i = 0; i<NUM_ALGORITHEMS; i++) {
 		for (j = 0; j < NUM_SITUATIONS; j++) {
-			leerTiempo_v(algoritmos[i],
+			leerTiempo_s(algoritmos[i],
 			             algoritmos[i].situation[j],
 			             algoritmos[i].situation[j].sit.tiempos,
 			             algoritmos[i].situation[j].sit.valN);
 		}
 	}
-	//testTiempos_v(algoritmos);
+	//testTiempos_s(algoritmos);
 }

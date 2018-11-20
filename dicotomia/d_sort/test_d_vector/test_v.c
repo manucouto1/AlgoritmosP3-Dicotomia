@@ -1,29 +1,9 @@
-#include "../d_vector.h"
+#ifndef HEADER_D_sort
+#define HEADER_D_sort
+#include "../d_sort.h"
+#endif
 
-#define UMBRAL 1
-
-void inicializar_semilla() {
-	srand(time(NULL));
-}
-
-void aleatorio(int v [], int n) {/* se generan números pseudoaleatorio entre -n y +n */
-	int i, m=2*n+1;
-	for (i=0; i < n; i++)
-		v[i] = (rand() % m) - n;
-}
-void ascendente(int v [], int n) {
-	int i;
-	for (i=0; i < n; i++)
-		v[i] = i;
-}
-void descendente (int v[], int n){
-	int i;
-
-	for (i = 0; i < n; i++) {
-		v[i] = n - i - 1;
-	}
-}
-
+#define UMBRAL 10
 /*Algoritmos de ordenación*/
 
 void ord_ins (int v [], int n) {
@@ -97,24 +77,24 @@ void ord_rapida(int v[], int n) {
 /*
  * DONE - inicialización del los algoritmos de los que realizaremos el estudio
  */
-alg_dico_vector initAlgorithems_v(alg_dico_vector algoritmos[]){
+alg_dico_sort initAlgorithems_s(alg_dico_sort algoritmos[]){
 	// Esta parte la cambiariamos para cada problema a estudiar,
 	// por ejemplo si no hace falta ordenar no habria estas funciones
 	int i = 0;
 	inicializar_semilla();
 	printf(" - Inicializando Algoritmos \n");
 	printf(" ************************************ \n");
-	sit_dico_vector situations[NUM_SITUATIONS] = {
-			initStudyCase_v("vector aleatorio", aleatorio),
-			initStudyCase_v("vector ascendente",ascendente),
-			initStudyCase_v("vector descendente", descendente)
+	sit_dico_sort situations[NUM_SITUATIONS] = {
+			initStudyCase_s("vector aleatorio", aleatorio),
+			initStudyCase_s("vector ascendente",ascendente),
+			initStudyCase_s("vector descendente", descendente)
 	};
 
-	alg_dico_vector aux [NUM_ALGORITHEMS] = {
-			initAlgorithem_v("Insercion",ord_ins , situations, 500, 2, 32000, 7),
-			initAlgorithem_v("Quicksort", ord_rapida, situations, 1000, 10, (int) pow(10,8), 6)
+	alg_dico_sort aux [NUM_ALGORITHEMS] = {
+			initAlgorithem_s("Insercion",ord_ins , situations, 500, 2, 32000, 7),
+			initAlgorithem_s("Quicksort", ord_rapida, situations, 1000, 10, (int) pow(10,8), 6)
 	};
 
-	memcpy(algoritmos, aux, NUM_ALGORITHEMS * sizeof(alg_dico_vector));
+	memcpy(algoritmos, aux, NUM_ALGORITHEMS * sizeof(alg_dico_sort));
 	printf("\n");
 }

@@ -1,45 +1,83 @@
 #include <string.h>
 
-#include "dicotomia/d_vector/persist_to_txt/readWriteData_v.h"
+#include "dicotomia/d_sort/persist_to_txt/readWriteData_s.h"
 #include "dicotomia/d_hash_tables/persist_to_txt/readWriteData_h.h"
 
-void calculoCompAlgOrdenacion(){
 
-	//COTAS
+void mideTiemposCalculaCotas_s(){
 	int nCotas;
 	funcion funcs[NUM_FUNCT];
-	// ALGORITMOS que trabaja con VECTORES
-	alg_dico_vector algoritmos[NUM_ALGORITHEMS];
+	alg_dico_sort algoritmos[NUM_ALGORITHEMS];
 	cota_t *cotasEstudio = malloc(sizeof(cota_t)*100);
-	// Inicializamos el muestrario de funciones
+
 	initFuncs(funcs);
-	//printFuncs(funcs);
-	// Inicializamos los algoritmos y sus valores
-	initAlgorithems_v(algoritmos);
-	//printAlgorithemAndSituation_v(algoritmos);
-
-	// Generamos las Posibles cotas
+	printFuncs(funcs);
+	initAlgorithems_s(algoritmos);
 	initCotas(funcs, cotasEstudio, &nCotas);
-	//printCotas(cotasEstudio, nCotas);
-
-	// Ordenamos las Posibles Cotas basándonos en la pendiente de las funciones en un punto
-	// representativo del intervalo en el que se realiza el estudio
 	sortCotas(cotasEstudio, &nCotas, 1000, 100000000);
 	printCotas(cotasEstudio, nCotas);
+	lecturaTiempos_s(algoritmos);
+	buscarCotas_s(algoritmos, cotasEstudio, nCotas);
 
-	// OBTENER TIEMPOS Y PERSISTIR A TXT
-	//cargarTiemposEstaticos_v(algoritmos);
-	//lecturaTiempos_v(algoritmos);
-	//cacheTimeData_v(algoritmos);
+}
 
-	// CARGAR TIEMPOS DESDE TXT
-	loadCachedTime_v(algoritmos);
+void mideTiemposPersisteTxt_s(){
+	int nCotas;
+	funcion funcs[NUM_FUNCT];
+	alg_dico_sort algoritmos[NUM_ALGORITHEMS];
+	cota_t *cotasEstudio = malloc(sizeof(cota_t)*100);
 
-	buscarCotas_v(algoritmos, cotasEstudio, nCotas);
+	initFuncs(funcs);
+	printFuncs(funcs);
+	initAlgorithems_s(algoritmos);
+	initCotas(funcs, cotasEstudio, &nCotas);
+	sortCotas(cotasEstudio, &nCotas, 1000, 100000000);
+	printCotas(cotasEstudio, nCotas);
+	lecturaTiempos_s(algoritmos);
+	cacheTimeData_s(algoritmos);
 	free(cotasEstudio);
 }
 
-void calculoCompHashingTables(){
+void leeTxtCalculaCotas_s(){
+	int nCotas;
+	funcion funcs[NUM_FUNCT];
+
+	alg_dico_sort algoritmos[NUM_ALGORITHEMS];
+	cota_t *cotasEstudio = malloc(sizeof(cota_t)*100);
+
+	initFuncs(funcs);
+	printFuncs(funcs);
+	initAlgorithems_s(algoritmos);
+	initCotas(funcs, cotasEstudio, &nCotas);
+	sortCotas(cotasEstudio, &nCotas, 1000, 100000000);
+	printCotas(cotasEstudio, nCotas);
+	loadCachedTime_s(algoritmos);
+	buscarCotas_s(algoritmos, cotasEstudio, nCotas);
+	free(cotasEstudio);
+}
+
+void mideTiemposCotasManual(){
+	alg_dico_hash algoritmos[NUM_ALGORITHEMS];
+	initAlgorithems_h_manual(algoritmos);
+	lecturaTiempos_h(algoritmos);
+	mostrarCotas_h(algoritmos);
+}
+
+void mideTiemposPersisteTxtCotasManual(){
+	alg_dico_hash algoritmos[NUM_ALGORITHEMS];
+	initAlgorithems_h_manual(algoritmos);
+	lecturaTiempos_h(algoritmos);
+	cacheTimeData_h(algoritmos);
+}
+
+void leeTxtCotasManual(){
+	alg_dico_hash algoritmos[NUM_ALGORITHEMS];
+	initAlgorithems_h_manual(algoritmos);
+	loadCachedTime_h(algoritmos);
+	mostrarCotas_h(algoritmos);
+}
+
+void mideTiemposCalculaCotas_h(){
 	//COTAS
 	int nCotas;
 	funcion funcs[NUM_FUNCT];
@@ -48,49 +86,73 @@ void calculoCompHashingTables(){
 
 	tabla_cerrada d = malloc (MAX_N * sizeof(entrada));
 
-	// Inicializamos el muestrario de funciones
 	initFuncs(funcs);
-	//printFuncs(funcs);
-
-	// Generamos las Posibles cotas
+	printFuncs(funcs);
 	initCotas(funcs, cotasEstudio, &nCotas);
-
-	// Ordenamos las Posibles Cotas basándonos en la pendiente de las funciones en un punto
-	// representativo del intervalo en el que se realiza el estudio
 	sortCotas(cotasEstudio, &nCotas, 125, 16000);
-	printCotas(cotasEstudio, nCotas);
 
-	// Inicializamos Algoritmos
-	//initAlgorithems_h(algoritmos);
-	initAlgorithems_h_manual(algoritmos);
-	//printAlgorithemAndSituation_h(algoritmos);
-
-	//lecturaTiempos_h(algoritmos);
-	//cacheTimeData_h(algoritmos);
-
-	loadCachedTime_h(algoritmos);
-
+	initAlgorithems_h(algoritmos);
+	printAlgorithemAndSituation_h(algoritmos);
+	lecturaTiempos_h(algoritmos);
 	buscarCotas_h(algoritmos, cotasEstudio, nCotas);
 	free(cotasEstudio);
 }
 
-void busquedaCotasManual(){
+void mideTiemposPersisteTxt_h(){
+	//COTAS
+	int nCotas;
+	funcion funcs[NUM_FUNCT];
 	alg_dico_hash algoritmos[NUM_ALGORITHEMS];
+	cota_t *cotasEstudio = malloc(sizeof(cota_t)*100);
 
-	initAlgorithems_h_manual(algoritmos);
+	tabla_cerrada d = malloc (MAX_N * sizeof(entrada));
 
-	//lecturaTiempos_h(algoritmos);
+	initFuncs(funcs);
+	printFuncs(funcs);
+	initCotas(funcs, cotasEstudio, &nCotas);
+	sortCotas(cotasEstudio, &nCotas, 125, 16000);
+	printCotas(cotasEstudio, nCotas);
+
+	initAlgorithems_h(algoritmos);
+	printAlgorithemAndSituation_h(algoritmos);
+	lecturaTiempos_h(algoritmos);
+	cacheTimeData_h(algoritmos);
+
+	free(cotasEstudio);
+}
+
+void leeTxtCalculaCotas_h(){
+	//COTAS
+	int nCotas;
+	funcion funcs[NUM_FUNCT];
+	alg_dico_hash algoritmos[NUM_ALGORITHEMS];
+	cota_t *cotasEstudio = malloc(sizeof(cota_t)*100);
+
+	tabla_cerrada d = malloc (MAX_N * sizeof(entrada));
+
+	initFuncs(funcs);
+	printFuncs(funcs);
+	initCotas(funcs, cotasEstudio, &nCotas);
+	sortCotas(cotasEstudio, &nCotas, 125, 16000);
+	printCotas(cotasEstudio, nCotas);
+
+	initAlgorithems_h(algoritmos);
+	printAlgorithemAndSituation_h(algoritmos);
+
 	loadCachedTime_h(algoritmos);
-
-	mostrarCotas_h(algoritmos);
+	buscarCotas_h(algoritmos, cotasEstudio, nCotas);
+	free(cotasEstudio);
 }
 
 int main() {
 
-	//testResDispersion();
-	calculoCompHashingTables();
-	//busquedaCotasManual();
-	//calculoCompAlgOrdenacion();
+	//mideTiemposCalculaCotas_h();
+	//mideTiemposCotasManual();
+	//mideTiemposCalculaCotas_s();
+	//mideTiemposPersisteTxt_s();
+	leeTxtCalculaCotas_s();
+	//mideTiemposPersisteTxt_h();
+	//leeTxtCalculaCotas_h();
 	return 0;
 
 }

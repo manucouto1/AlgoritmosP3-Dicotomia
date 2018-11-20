@@ -42,12 +42,12 @@ unsigned int resol_colision_cuadratica (int pos_ini, int num_intento){
 unsigned int resol_colision_exploracion_doble (int pos_ini, int num_intento){
 	int sol;
 
-	int divid = (5 - pos_ini);
+	int divid = (10007 - pos_ini);
 
 	if(divid > 0)
-		sol = divid % 5;
+		sol = divid % 10007;
 	else
-		sol =  (5 + divid%5);
+		sol =  (10007 + divid%10007);
 
 	return (unsigned int) sol*num_intento;
 }
@@ -271,9 +271,9 @@ alg_dico_hash initAlgorithems_h_manual(alg_dico_hash algoritmos[]){
 	sit_dico_hash sitResCuadA = initStudyCase_h("RESOLUCION CUADRÁTICA",resol_colision_cuadratica, diccionario2);
 	sit_dico_hash sitResDobleA = initStudyCase_h("RESOLUCION DOBLE", resol_colision_exploracion_doble, diccionario3);
 
-	putCotasManually(&sitResLinealA.sit,(cota_t){N,0},(cota_t){Nexp_x,0.1},(cota_t){NxLogN,0});
-	putCotasManually(&sitResCuadA.sit,(cota_t){N,0},(cota_t){Nexp_x,0.1},(cota_t){NxLogN,0});
-	putCotasManually(&sitResDobleA.sit,(cota_t){N,0},(cota_t){Nexp_x,0.1},(cota_t){NxLogN,0});
+	putCotasManually(&sitResLinealA.sit,generateName((cota_t){Nexp_x,0.8}),generateName((cota_t){N,0}),generateName((cota_t){NxLogN,0}));
+	putCotasManually(&sitResCuadA.sit,generateName((cota_t){Nexp_x,0.8}),generateName((cota_t){N,0}),generateName((cota_t){NxLogN,0}));
+	putCotasManually(&sitResDobleA.sit,generateName((cota_t){Nexp_x,0.8}),generateName((cota_t){N,0}),generateName((cota_t){NxLogN,0}));
 
 	sit_dico_hash situations1[NUM_SITUATIONS] = { sitResLinealA, sitResCuadA, sitResDobleA	};
 
@@ -281,9 +281,9 @@ alg_dico_hash initAlgorithems_h_manual(alg_dico_hash algoritmos[]){
 	sit_dico_hash sitResCuadB = initStudyCase_h("RESOLUCION CUADRÁTICA",resol_colision_cuadratica, diccionario5);
 	sit_dico_hash sitResDobleB = initStudyCase_h("RESOLUCION DOBLE", resol_colision_exploracion_doble, diccionario6);
 
-	putCotasManually(&sitResLinealB.sit,(cota_t){N,0},(cota_t){Nexp_x,0.1},(cota_t){NxLogN,0});
-	putCotasManually(&sitResCuadB.sit,(cota_t){N,0},(cota_t){Nexp_x,0.1},(cota_t){NxLogN,0});
-	putCotasManually(&sitResDobleB.sit,(cota_t){N,0},(cota_t){Nexp_x,0.1},(cota_t){NxLogN,0});
+	putCotasManually(&sitResLinealB.sit,generateName((cota_t){Nexp_x,0.8}),(cota_t){N,0},(cota_t){NxLogN,0});
+	putCotasManually(&sitResCuadB.sit,generateName((cota_t){Nexp_x,0.8}),generateName((cota_t){N,0}),generateName((cota_t){NxLogN,0}));
+	putCotasManually(&sitResDobleB.sit,generateName((cota_t){Nexp_x,0.8}),generateName((cota_t){N,0}),generateName((cota_t){NxLogN,0}));
 
 	sit_dico_hash situations2[NUM_SITUATIONS] = {sitResLinealB, sitResCuadB, sitResDobleB};
 

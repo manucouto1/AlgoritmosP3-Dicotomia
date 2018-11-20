@@ -1,6 +1,6 @@
-#include "readWriteData_v.h"
+#include "readWriteData_s.h"
 
-int cacheTimeData_v(alg_dico_vector alg[]) {
+int cacheTimeData_s(alg_dico_sort alg[]) {
 	int i;
 	int j;
 	int k;
@@ -8,7 +8,7 @@ int cacheTimeData_v(alg_dico_vector alg[]) {
 
 	FILE *file;
 
-	file = fopen(CACHE_FILE_NAME_V, "w");
+	file = fopen(CACHE_FILE_NAME_S, "w");
 
 	if (file != NULL){
 		for (i = 0; i < NUM_ALGORITHEMS; i++) {
@@ -34,7 +34,7 @@ int cacheTimeData_v(alg_dico_vector alg[]) {
 	return 0;
 }
 
-int loadCachedTime_v(alg_dico_vector alg[]) {
+int loadCachedTime_s(alg_dico_sort alg[]) {
 	int i = 0, j = 0, k = 0;
 	FILE *file;
 	char buff[1024];
@@ -42,7 +42,7 @@ int loadCachedTime_v(alg_dico_vector alg[]) {
 	char *aux;
 	char *aux2;
 
-	file = fopen(CACHE_FILE_NAME_V, "r");
+	file = fopen(CACHE_FILE_NAME_S, "r");
 
 	if (file != NULL) {
 		while (fgets(buff,1024,file)) {
@@ -77,7 +77,7 @@ int loadCachedTime_v(alg_dico_vector alg[]) {
 		perror("ERROR reading file ");
 		return -1;
 	}
-	testTiempos_v(alg);
+	testTiempos_s(alg);
 	fclose(file);
 	return 0;
 }

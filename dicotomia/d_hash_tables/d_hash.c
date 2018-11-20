@@ -56,8 +56,8 @@ void mostrarCotas_h(alg_dico_hash algoritmo[]){
 			printf("\nOrdenación %s con inicialización %s\n\n", algoritmo[i].alg.alg_name
 					, algoritmo[i].situation[j].sit.sit_name);
 
-			printf("   %-10s%-15st(n)/%-10st(n)/%-10st(n)/%-10s\n", "n", "t(n)",algoritmo[i].situation[j].sit.sobre.cota.name,
-					algoritmo[i].situation[j].sit.ajus.cota.name,algoritmo[i].situation[j].sit.sub.cota.name);
+			printf("   %-10s%-15st(n)/%-10st(n)/%-10st(n)/%-10s%7s\n", "n", "t(n)",algoritmo[i].situation[j].sit.sobre.cota.name,
+					algoritmo[i].situation[j].sit.ajus.cota.name,algoritmo[i].situation[j].sit.sub.cota.name,"anomalo");
 
 			for (k = 0; k<algoritmo[i].alg.nTemp; k++) {
 
@@ -66,16 +66,18 @@ void mostrarCotas_h(alg_dico_hash algoritmo[]){
 
 				if(algoritmo[i].situation[j].sit.tiempos[k].is_under_500) {
 
-					printf("(*)%-10d%-15.5f%-15.8f%-15.8f%-15.8f\n", valN, tiempo,
+					printf("(*)%-10d%-15.5f%-15.8f%-15.8f%-15.8f%7d\n", valN, tiempo,
 					       tiempo / execute(algoritmo[i].situation[j].sit.sobre.cota, valN, algoritmo[i].situation[j].sit.sobre.exp,0),
 					       tiempo / execute(algoritmo[i].situation[j].sit.ajus.cota, valN, algoritmo[i].situation[j].sit.ajus.exp,0),
-					       tiempo / execute(algoritmo[i].situation[j].sit.sub.cota, valN, algoritmo[i].situation[j].sit.sub.exp,0)
+					       tiempo / execute(algoritmo[i].situation[j].sit.sub.cota, valN, algoritmo[i].situation[j].sit.sub.exp,0),
+					       algoritmo[i].situation[j].sit.tiempos[k].is_anomalo
 					);
 				} else {
-					printf("   %-10d%-15.5f%-15.8f%-15.8f%-15.8f\n", valN, tiempo,
+					printf("   %-10d%-15.5f%-15.8f%-15.8f%-15.8f%7d\n", valN, tiempo,
 					       tiempo / execute(algoritmo[i].situation[j].sit.sobre.cota, valN, algoritmo[i].situation[j].sit.sobre.exp,0),
 					       tiempo / execute(algoritmo[i].situation[j].sit.ajus.cota, valN, algoritmo[i].situation[j].sit.ajus.exp,0),
-					       tiempo / execute(algoritmo[i].situation[j].sit.sub.cota, valN, algoritmo[i].situation[j].sit.sub.exp,0)
+					       tiempo / execute(algoritmo[i].situation[j].sit.sub.cota, valN, algoritmo[i].situation[j].sit.sub.exp,0),
+					       algoritmo[i].situation[j].sit.tiempos[k].is_anomalo
 					);
 				}
 			}
@@ -87,6 +89,7 @@ void buscarCotas_h(alg_dico_hash algoritmos[], cota_t cotas[], int numCotas){
 	int i,j;
 
 	for(i = 0; i < NUM_ALGORITHEMS; i++){
+		printf("ALGORITMO -> %s \n",algoritmos[i].alg.alg_name);
 		for(j = 0; j < NUM_SITUATIONS; j++){
 			acotarComplejidad(&algoritmos[i].situation[j].sit, cotas, numCotas, algoritmos[i].alg.nTemp);
 		}
@@ -164,11 +167,11 @@ void leerTiempo_h(alg_dico_hash algoritmo, sit_dico_hash situacion, time_dico ti
 
 			ti = tb - ta;
 			t = (t - ti) / k;
-			tiempos[j] = (time_dico){1,t};
+			tiempos[j] = (time_dico){1,0,t};
 			printf("\t\t > tiempo %f *\n", tiempos[j].tiempo);
 
 		} else {
-			tiempos[j] = (time_dico){0,t};
+			tiempos[j] = (time_dico){0,0,t};
 			printf("\t\t > tiempo %f \n", tiempos[j].tiempo);
 		}
 		j++;

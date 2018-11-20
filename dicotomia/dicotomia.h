@@ -16,7 +16,7 @@
 #define UMBRAL_DICO 10
 
 #define NUM_SITUATIONS 3
-#define NUM_FUNCT 4
+#define NUM_FUNCT 3
 #define NUM_ALGORITHEMS 2
 
 
@@ -34,6 +34,7 @@ typedef  struct {
 
 typedef struct {
 	int is_under_500;
+	int is_anomalo;
 	double tiempo;
 } time_dico;
 
@@ -66,6 +67,7 @@ void putCotasManually(sit_dico *sit, cota_t sobre, cota_t ajus, cota_t sub);
 
 void acotarComplejidad(sit_dico *sit, cota_t cotas[], int numCotas, int numValoresT);
 
+cota_t generateName(cota_t cota);
 double microsegundos();
 
 

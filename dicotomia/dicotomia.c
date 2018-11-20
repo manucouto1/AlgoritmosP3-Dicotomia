@@ -41,6 +41,26 @@ void printFuncs(funcion *funcs){
 	printf("\n");
 }
 
+
+cota_t generateName(cota_t cota){
+	char *token1;
+	char *token2;
+	char aux[256];
+
+	if(cota.cota.isComplex) {
+		token1 = strtok(cota.cota.name, "$");
+		token2 = strtok(NULL, "$");
+		if (token2 != NULL) {
+			sprintf(aux, "%s%2.1f%s", token1, cota.exp, token2);
+			strcpy(cota.cota.name, aux);
+		} else {
+			sprintf(aux, "%s%2.1f", token1, cota.exp);
+			strcpy(cota.cota.name, aux);
+		}
+	}
+	return cota;
+}
+
 /*
  * TODO - inicializa las cotas, para ello tiene que crearlas usando las funciones y habrá que ordenarlas
  */
@@ -59,7 +79,7 @@ void initCotas(funcion funcs[], cota_t *cotas, int *nCotas) {
 	for(i = 0; i<NUM_FUNCT; i++){
 
 		if(funcs[i].isComplex){
-			j = 0.3;
+			j = 0.1;
 			while(j < 3.0){
 				cotas[*nCotas].cota = funcs[i];
 				cotas[*nCotas].exp = j;
@@ -143,6 +163,96 @@ void printCotas(cota_t *cotas, int nCotas){
 	}
 	printf("\n");
 }
+int tendenciaCreciente(double umbral_tolerancia, cota_t cota, int nVector[], time_dico tiempos[], int nArgs, int anomalo_ini){
+
+	int i = 1;
+	int tend = 1;
+	int anomalo = anomalo_ini;
+
+	long double n;
+	long double n_mas_uno;
+	long double media = 0;
+	long double media_anterior = 0;
+
+	n = (tiempos[0].tiempo / execute(cota.cota, nVector[0],cota.exp,0));
+	media = n;
+
+	printf(" - Nombre F(n) = %-13s | f(n) = %-24f | t = %-20f | t/f(n) = %-20.15Lf\n", cota.cota.name,
+	       execute(cota.cota, nVector[0],cota.exp,0), tiempos[0].tiempo, n);
+
+	while (i < (nArgs - 1) && tend >= -1) {
+
+		n_mas_uno = (tiempos[i + 1].tiempo / execute(cota.cota, nVector[i + 1],cota.exp,0));
+		media = (media + n)/2;
+		media = (media_anterior + media)/2;
+		printf(" - Nombre F(n) = %-13s | f(n) = %-24f | t = %-20f | t/f(n) = %-20.15Lf | anomalo = %d \n", cota.cota.name,
+		     execute(cota.cota, nVector[i],cota.exp,0), tiempos[i].tiempo, n, anomalo);
+
+		if( n_mas_uno < n + media * umbral_tolerancia ) {
+			if(anomalo >= 2) {
+				tend = -2;
+			} else
+				anomalo++;
+		}
+
+		if(n > n_mas_uno)
+			tiempos[i].is_anomalo = 1;
+		n = n_mas_uno;
+		media_anterior = media;
+		i++;
+	}
+
+	return tend;;
+
+}
+
+int tendenciaDecreciente(double umbral_tolerancia, cota_t cota, int nVector[], time_dico tiempos[], int nArgs, int anomalo_ini){
+	int i = 1;
+	int tend = -1;
+	int anomalo = anomalo_ini;
+
+	long double n;
+	long double n_mas_uno;
+	long double media = 0;
+	long double media_anterior = 0;
+
+	n = (tiempos[0].tiempo / execute(cota.cota, nVector[0],cota.exp,0));
+	media = n;
+
+	printf(" - Nombre F(n) = %-13s | f(n) = %-24f | t = %-20f | t/f(n) = %-20.15Lf\n", cota.cota.name,
+	    execute(cota.cota, nVector[0],cota.exp,0), tiempos[0].tiempo, n);
+
+	while (i < (nArgs - 1) && tend >= -1) {
+
+		n_mas_uno = (tiempos[i].tiempo / execute(cota.cota, nVector[i],cota.exp,0));
+
+		media = (media + n)/2;
+		media = (media_anterior + media)/2;
+
+		printf(" - Nombre F(n) = %-13s | f(n) = %-24f | t = %-20f | t/f(n) = %-20.15Lf | media = %-20.15Lf | anomalo = %d \n", cota.cota.name,
+		       execute(cota.cota, nVector[i],cota.exp,0), tiempos[i].tiempo, media, n_mas_uno, anomalo);
+
+		if( n + media * umbral_tolerancia  < n_mas_uno ) {
+			if (anomalo >= 2) {
+				tend = -2;
+			} else {
+				anomalo++;
+			}
+		}
+
+		if(n > n_mas_uno)
+			tiempos[i].is_anomalo = 0;
+
+		n = n_mas_uno;
+
+		media_anterior = media;
+
+		i++;
+	}
+
+	return tend;;
+}
+
 
 int tendencia(double umbral_tolerancia, cota_t cota ,int nVector[], time_dico tiempos[] , int nArgs){
 
@@ -151,143 +261,224 @@ int tendencia(double umbral_tolerancia, cota_t cota ,int nVector[], time_dico ti
 	int anomalo = 0;
 
 	long double n;
-	long double n_mas_uno;
-
+	long double media = 0;
 
 	n = (tiempos[0].tiempo / execute(cota.cota, nVector[0],cota.exp,0));
+	media = n;
 
 	printf(" - Nombre F(n) = %-13s | f(n) = %-24f | t = %-20f | t/f(n) = %-20.15Lf\n", cota.cota.name,
 	       execute(cota.cota, nVector[0],cota.exp,0), tiempos[0].tiempo, n);
 
 	while (i < (nArgs - 1) && tend >= -1) {
 
-		n_mas_uno = (tiempos[i + 1].tiempo / execute(cota.cota, nVector[i + 1],cota.exp,0));
+		n = (tiempos[i + 1].tiempo / execute(cota.cota, nVector[i + 1],cota.exp,0));
 
 		printf(" - Nombre F(n) = %-13s | f(n) = %-24f | t = %-20f | t/f(n) = %-20.15Lf\n", cota.cota.name,
-		       execute(cota.cota, nVector[i],cota.exp,0), tiempos[i].tiempo, n_mas_uno);
+		       execute(cota.cota, nVector[i],cota.exp,0), tiempos[i].tiempo, n);
 
-		if (n_mas_uno - n + (fabs((double)(n_mas_uno - n))*umbral_tolerancia) > 0){
-			if(!anomalo){
-				if(tend == 7 || tend == 1) { // tend == 7 es para la primera iteración
-					anomalo = 0;
-					tend = 1; // Crece
-				} else {
-					anomalo = 1;
-					tend = 1; // avisamos de que ha habido una dato anómalo
-				}
-			} else {
-				if( tend == 1 ){
-					tend = 1; // Crece
-					anomalo = 0;
-				} else {
-					tend = -2; // optamos por dar el resultado por erroneo, demasiados datos erroneos
-				}
-			}
+		if(n < media + (media * umbral_tolerancia)){
+			if(tend == 7 || tend == -1)
+				tend = -1;
+			else if(anomalo == 1)
+				tend = -2;
+			else
+				anomalo = 1;
+		} else if( n + (media * umbral_tolerancia) > media) {
+			if(tend == 7 || tend == 1)
+				tend = 1;
+			else if(anomalo == 1)
+				tend = -2;
+			else
+				anomalo = 1;
+		} else if(fabs((double)(n - media)) < media * umbral_tolerancia){
+			if(tend == 7 || tend == 0) {
+				tend = 0;
+				anomalo = 0;
+			} else if(anomalo == 1)
+				tend = -2;
 
-		} else if (n - n_mas_uno + fabs((double)(n - n_mas_uno))*umbral_tolerancia > 0){
-			if(!anomalo){
-				if(tend == 7 || tend == -1) { // tend == 7 es para la primera iteración
-					tend = -1; // Decrece
-					anomalo = 0;
-				} else {
-					anomalo = 1;
-					tend = -1; // avisamos de que ha habido una dato anómalo
-				}
-			} else {
-				if( tend == -1 ){
-					tend = -1;
-					anomalo = 0;
-				} else {
-					tend = -2; // optamos por dar el resultado por erroneo, demasiados datos erroneos
-				}
-			}
-		} else if (fabs((double)(n - n_mas_uno))*umbral_tolerancia < umbral_tolerancia){
-			if(!anomalo){
-				if(tend == 7 || tend == 0) { // tend == 7 es para la primera iteración
-					anomalo = 0;
-					tend = 0;
-				} else {
-					anomalo = 1;
-					tend = 0; // avisamos de que ha habido una dato anómalo
-				}
-			} else {
-				if( tend == 0 ){
-					tend = 0;
-					anomalo = 0;
-				} else {
-					tend = -2; // optamos por dar el resultado por erroneo, demasiados datos erroneos
-				}
-			}
-		}
-		n = n_mas_uno;
+		} else if(anomalo == 1) {
+			tend = -2;
+		} else
+			anomalo = 1;
+
+		media = (media + n)/(i+1);
 		i++;
 	}
 
 	return tend;;
 }
 
+double calcularMedia(const double valores[], int nTemp) {
+	int i;
+	double total = 0;
+
+	for (i = 0; i < nTemp; i++) {
+		total += valores[i];
+	}
+
+	return total/nTemp;
+}
+
+void auxAcotarSobre(double umbral,cota_t *cSobre, cota_t *cAjust, cota_t cotas[], int *pibSobre, int *pibSub, int valN[], time_dico tiempos[], int numT){
+
+	int pibAjust;
+
+	printf("_______________________________________________________________________________________________________________________________\n");
+	printf("Acotando SOBRE \n");
+	if (tendenciaCreciente(umbral, cotas[*pibSobre], valN, tiempos, numT, 0) == 1 || (*pibSobre < *pibSub)){
+		*pibSobre = (*pibSobre)++;
+		auxAcotarSobre(umbral, cSobre, cAjust, cotas, pibSobre, pibSub, valN, tiempos, numT);
+	} else {
+		pibAjust = *pibSobre;
+		(*pibSobre)--;
+		printf(" ^ >>>>>> AJUSTADA <<<<<   %d\n", *pibSobre);
+		printf("SOBRE > %s\n",cotas[*pibSobre].cota.name);
+		printf("AJUS > %s\n",cotas[pibAjust].cota.name);
+		interCambioCotas(cAjust, &cotas[pibAjust]);
+		interCambioCotas(cSobre, &cotas[*pibSobre]);
+		}
+}
+
+void auxAcotarSub(double umbral,cota_t *cSub, cota_t *cAjust, cota_t cotas[], int *pibSub, int pibSobre, int valN[], time_dico tiempos[], int numT){
+
+	int pibAjust;
+
+	printf("_______________________________________________________________________________________________________________________________\n");
+	printf("Acotando SUB \n");
+	if (tendenciaDecreciente(umbral, cotas[*pibSub], valN, tiempos, numT,0) == -1 || (pibSobre < *pibSub)){
+		*pibSub = (*pibSub)--;
+		auxAcotarSub(umbral, cSub, cAjust, cotas, pibSub, pibSobre, valN, tiempos, numT);
+	} else {
+		pibAjust = *pibSub;
+		pibSub++;
+		printf(" ^ >>>>>> AJUSTADA <<<<<   %d\n", *pibSub);
+		printf("SUB > %s\n",cotas[*pibSub].cota.name);
+		printf("AJUS > %s\n",cotas[pibAjust].cota.name);
+		interCambioCotas(cAjust, &cotas[pibAjust]);
+		interCambioCotas(cSub, &cotas[*pibSub]);
+	}
+}
+
+
 void acotarComplejidad(sit_dico *sit, cota_t cotas[], int numCotas, int numValoresT){
 	int succesSobre = 0;
 	int succesSub = 0;
-	int succesAjus = 0;
 
 	double err = 1.0;
 	double umbral = 0.01;
 	int pibSobre = 0;
 	int pibSub = numCotas - 1;
-	int pibAjus;
+	int pibAjusSobre = 0;
+	int pibAjusSub = 0;
 
 	int automata;
-
-	while (pibSobre < pibSub && (!succesSobre || !succesSub) && err > 0.1) {
+	while (pibSobre < pibSub && (!succesSobre || !succesSub)) {
 		if(!succesSobre) {
 			printf("_______________________________________________________________________________________________________________________________\n");
 			printf("Acotando SOBRE \n");
-			automata = tendencia(umbral, cotas[pibSobre], sit->valN, sit->tiempos, numValoresT);
-			if (automata == 1)
+
+			if (tendenciaCreciente(umbral, cotas[pibSobre], sit->valN, sit->tiempos, numValoresT,0) == 1){
 				pibSobre++;
-			else if (automata == 0) {
-				succesAjus = 1;
-				pibAjus = pibSobre;
-				interCambioCotas(&sit->ajus, &cotas[pibAjus]);
-				printf(" ^ >>>>>> AJUSTADA <<<<<   %d\n", pibAjus);
-				pibSobre--;
 			} else {
-				pibSobre--;
-				printf(" ^ >>>>>> SOBRESTIMADA <<<<<   %d\n", pibSobre);
-				interCambioCotas(&sit->sobre, &cotas[pibSobre]);
 				succesSobre = 1;
+				pibAjusSobre = pibSobre;
+				pibSobre--;
+				printf(" ^ >>>>>> AJUSTADA <<<<<   %d\n", pibSobre);
+				printf("SOBRE > %s\n",cotas[pibSobre].cota.name);
+				printf("AJUS > %s\n",cotas[pibAjusSobre].cota.name);
+				interCambioCotas(&sit->ajus, &cotas[pibAjusSobre]);
+				interCambioCotas(&sit->sobre, &cotas[pibSobre]);
 			}
 		}
 		printf("- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - \n");
 		if(!succesSub) {
 			printf("Acotando SUB \n");
-			automata = tendencia(umbral, cotas[pibSub], sit->valN, sit->tiempos, numValoresT);
-			if (automata == -1)
+			automata = tendenciaDecreciente(umbral, cotas[pibSub], sit->valN, sit->tiempos, numValoresT,0);
+			printf("AUTOMATA = %d \n", automata);
+			if (automata == -1){
 				pibSub--;
-			else if (automata == 0) {
-				succesAjus = 1;
-				pibAjus = pibSub;
-				interCambioCotas(&sit->ajus, &cotas[pibAjus]);
-				printf(" ^ >>>>>> AJUSTADA <<<<<   %d\n", pibAjus);
-				pibSub++;
 			} else {
-                pibSub++;
-				printf(" ^ >>>>>> SUBESTIMADA <<<<<   %d\n", pibSub);
-				printf(" %s\n",cotas[pibSub].cota.name);
-				interCambioCotas(&sit->sub, &cotas[pibSub]);
 				succesSub = 1;
+				pibAjusSub = pibSub;
+                pibSub++;
+				printf(" ^ >>>>>> AJUSTADA <<<<<   %d\n", pibAjusSub);
+				printf("SUB > %s\n",cotas[pibSub].cota.name);
+				printf("AJUS > %s\n",cotas[pibAjusSub].cota.name);
+				interCambioCotas(&sit->ajus, &cotas[pibAjusSub]);
+				interCambioCotas(&sit->sub, &cotas[pibSub]);
 			}
 		}
 	}
 
-	if(!succesSobre)
-		interCambioCotas(&sit->sobre, &cotas[pibSobre]);
-	if(!succesSub)
-		interCambioCotas(&sit->sub, &cotas[pibSub]);
-	if(!succesAjus)
-		interCambioCotas(&sit->ajus, &cotas[(pibSub+pibSobre)/2]);
-	printf("RESULTS ");
+	if(!succesSobre && !succesSub){
+		if(pibSobre > 0){
+			pibAjusSobre = pibSobre - 1;
+			pibSub = pibSobre;
+			pibSobre = pibAjusSobre - 1;
+			interCambioCotas(&sit->sobre, &cotas[pibSobre]);
+			interCambioCotas(&sit->ajus, &cotas[pibAjusSobre]);
+			interCambioCotas(&sit->sub, &cotas[pibSub]);
+		} else {
+			pibAjusSub = pibSub + 1;
+			pibSobre = pibSub;
+			pibSobre = pibAjusSub - 1;
+			interCambioCotas(&sit->sobre, &cotas[pibSobre]);
+			interCambioCotas(&sit->ajus, &cotas[pibAjusSub]);
+			interCambioCotas(&sit->sub, &cotas[pibSub]);
+		}
+	} else {
+
+		if(succesSobre && succesSub){
+			interCambioCotas(&sit->ajus, &cotas[(pibAjusSub+pibAjusSobre)/2]);
+		} else {
+			if (!succesSobre) {
+				printf("_______________________________________________________________________________________________________________________________\n");
+				printf("Acotando SOBRE \n");
+				pibSobre = pibSobre - 2;
+				while (pibSobre < pibSub && !succesSobre){
+					if(tendenciaCreciente(umbral, cotas[pibSobre], sit->valN, sit->tiempos, numValoresT,2) == 1){
+						pibSobre++;
+					} else {
+						succesSobre = 1;
+						pibAjusSobre = pibSobre;
+						pibSobre--;
+						printf(" ^ >>>>>> AJUSTADA <<<<<   %d\n", pibSobre);
+						printf("SOBRE > %s\n",cotas[pibSobre].cota.name);
+						printf("AJUS > %s\n",cotas[pibAjusSobre].cota.name);
+						interCambioCotas(&sit->ajus, &cotas[pibAjusSobre]);
+						interCambioCotas(&sit->sobre, &cotas[pibSobre]);
+					}
+					printf("- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - \n");
+				}
+			}
+
+			if (!succesSub) {
+				printf("_______________________________________________________________________________________________________________________________\n");
+				printf("Acotando SUB \n");
+				pibSub = pibSub + 2;
+				while (pibSobre < pibSub && !succesSub){
+					if(tendenciaDecreciente(umbral, cotas[pibSub], sit->valN, sit->tiempos, numValoresT,2) == -1){
+						pibSub--;
+					} else {
+						succesSub = 1;
+						pibAjusSub = pibSub;
+						pibSub++;
+						printf(" ^ >>>>>> AJUSTADA <<<<<   %d\n", pibAjusSub);
+						printf("SUB > %s\n",cotas[pibSub].cota.name);
+						printf("AJUS > %s\n",cotas[pibAjusSub].cota.name);
+						interCambioCotas(&sit->ajus, &cotas[pibAjusSub]);
+						interCambioCotas(&sit->sub, &cotas[pibSub]);
+					}
+					printf("- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - \n");
+				}
+			}
+		}
+
+	}
+
+
+		printf("RESULTS ");
 	printf("___________________________________________________________\n");
 	printf("SuccesSub %5d | SuccesSobre %5d\n", succesSub, succesSobre);
 	printf("Value Sub %5d | Value Sobre %5d\n", pibSub, pibSobre);
