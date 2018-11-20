@@ -3,7 +3,7 @@
 #include "dicotomia.h"
 #endif
 
-const funcion FUNCIONES[] = {LOG, NxLogN, Nexp_x};
+const funcion FUNCIONES[] = {LOG, N, NxLogN, Nexp_x};
 
 /*
  * DONE - funciones que se usaran para el calculo de las cotas

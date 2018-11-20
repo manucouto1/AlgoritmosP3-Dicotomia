@@ -264,40 +264,35 @@ alg_dico_hash initAlgorithems_h_manual(alg_dico_hash algoritmos[]){
 
 	leer_sinonimos(datos);
 
-	printf(" - Inicializando Algoritmos \n");
+	printf(" - Inicializando Algoritmos Cotas estáticas\n");
 	printf(" ************************************ \n");
 
 	sit_dico_hash sitResLinealA = initStudyCase_h("RESOLUCION LINEAL", resol_colision_lineal, diccionario1);
 	sit_dico_hash sitResCuadA = initStudyCase_h("RESOLUCION CUADRÁTICA",resol_colision_cuadratica, diccionario2);
 	sit_dico_hash sitResDobleA = initStudyCase_h("RESOLUCION DOBLE", resol_colision_exploracion_doble, diccionario3);
 
-	putCotasManually(&sitResLinealA.sit,generateName((cota_t){Nexp_x,0.8}),generateName((cota_t){N,0}),generateName((cota_t){NxLogN,0}));
-	putCotasManually(&sitResCuadA.sit,generateName((cota_t){Nexp_x,0.8}),generateName((cota_t){N,0}),generateName((cota_t){NxLogN,0}));
-	putCotasManually(&sitResDobleA.sit,generateName((cota_t){Nexp_x,0.8}),generateName((cota_t){N,0}),generateName((cota_t){NxLogN,0}));
-
-	sit_dico_hash situations1[NUM_SITUATIONS] = { sitResLinealA, sitResCuadA, sitResDobleA	};
-
 	sit_dico_hash sitResLinealB = initStudyCase_h("RESOLUCION LINEAL", resol_colision_lineal, diccionario4);
 	sit_dico_hash sitResCuadB = initStudyCase_h("RESOLUCION CUADRÁTICA",resol_colision_cuadratica, diccionario5);
 	sit_dico_hash sitResDobleB = initStudyCase_h("RESOLUCION DOBLE", resol_colision_exploracion_doble, diccionario6);
+
+	putCotasManually(&sitResLinealA.sit,generateName((cota_t){Nexp_x,0.8}),generateName((cota_t){N,0}),generateName((cota_t){NxLogN,0}));
+	putCotasManually(&sitResCuadA.sit,generateName((cota_t){Nexp_x,0.8}),generateName((cota_t){N,0}),generateName((cota_t){NxLogN,0}));
+	putCotasManually(&sitResDobleA.sit,generateName((cota_t){Nexp_x,0.8}),generateName((cota_t){N,0}),generateName((cota_t){NxLogN,0}));
 
 	putCotasManually(&sitResLinealB.sit,generateName((cota_t){Nexp_x,0.8}),(cota_t){N,0},(cota_t){NxLogN,0});
 	putCotasManually(&sitResCuadB.sit,generateName((cota_t){Nexp_x,0.8}),generateName((cota_t){N,0}),generateName((cota_t){NxLogN,0}));
 	putCotasManually(&sitResDobleB.sit,generateName((cota_t){Nexp_x,0.8}),generateName((cota_t){N,0}),generateName((cota_t){NxLogN,0}));
 
+	sit_dico_hash situations1[NUM_SITUATIONS] = { sitResLinealA, sitResCuadA, sitResDobleA	};
 	sit_dico_hash situations2[NUM_SITUATIONS] = {sitResLinealB, sitResCuadB, sitResDobleB};
 
 	// Usar un Contenedor de aplicación para inyeccion de dependencias
 	alg_dico_hash aux [NUM_ALGORITHEMS] = {
-			initAlgorithem_h("DISPERSION A", datos,
-			                 dispersionA,
-			                 buscar_cerrada,
-			                 insertarDatos,
+			initAlgorithem_h("DISPERSION A", datos, dispersionA,
+			                 buscar_cerrada, insertarDatos,
 			                 situations1, 125, 16000, 2, 8),
-			initAlgorithem_h("DISPERSION B", datos,
-			                 dispersionB,
-			                 buscar_cerrada,
-			                 insertarDatos,
+			initAlgorithem_h("DISPERSION B", datos, dispersionB,
+			                 buscar_cerrada, insertarDatos,
 			                 situations2, 125, 16000, 2, 8)
 	};
 

@@ -1,5 +1,5 @@
-#ifndef HEADER_D_sort
-#define HEADER_D_sort
+#ifndef HEADER_D_SORT
+#define HEADER_D_SORT
 #include "../d_sort.h"
 #endif
 

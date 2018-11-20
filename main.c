@@ -150,9 +150,11 @@ int main() {
 	//mideTiemposCotasManual();
 	//mideTiemposCalculaCotas_s();
 	//mideTiemposPersisteTxt_s();
-	leeTxtCalculaCotas_s();
+	//leeTxtCalculaCotas_s();
 	//mideTiemposPersisteTxt_h();
 	//leeTxtCalculaCotas_h();
+
+	testHeap();
 	return 0;
 
 }

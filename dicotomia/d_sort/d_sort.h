@@ -9,7 +9,7 @@ typedef void (*typeIntVectorFunction)(int v[], int nargs);
 
 /* Registros CONCRETOS ORDENACION VECTORES */
 typedef struct {
-	int ector[TAM];
+	int vector[TAM];
 	int ultimo;
 }monticulo;
 
@@ -49,3 +49,4 @@ void descendente (int v[], int n);
 void ini_monticulo(monticulo *);
 void crear_montuculo(int [], int, monticulo *);
 int eliminar_mayor(monticulo *);
+void testHeap();
