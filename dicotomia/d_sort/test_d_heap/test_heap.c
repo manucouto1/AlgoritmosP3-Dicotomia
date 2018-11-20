@@ -67,14 +67,14 @@ void testHeap(){
 	ini_monticulo(&heap);
 	ascendente(v,7);
 	crear_montuculo(v,7,&heap);
-	for(i=0; i<7; i++){
+	for(i=0; i<=heap.ultimo; i++){
 		printf("| heap[%d] = %d ",i,heap.vector[i]);
 	}
 	printf("\n");
 
 	for(j=0; j<7; j++) {
 		r[j] = eliminar_mayor(&heap);
-		for (i = 0; i < 7; i++) {
+		for (i = 0; i <= heap.ultimo; i++) {
 			printf("| heap[%d] = %d ", i, heap.vector[i]);
 		}
 		printf("\n");
