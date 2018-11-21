@@ -55,8 +55,8 @@ typedef struct {
 /* CONCRETE PROBLEM VECTOR SORTING API */
 sit_dico_sort initStudyCase_s(char *name, typeIntVectorFunction ini);
 
-char* initAlgorithems_v(alg_dico_sort algoritmos[]); // <-- Este se implementa en el main.c
-alg_dico_sort initAlgorithem_v(char *name,typeIntVectorFunction func, sit_dico_sort sitDico[], int ini, int mult,
+char* initAlgorithems_s_v(alg_dico_sort algoritmos[]); // <-- Este se implementa en el main.c
+alg_dico_sort initAlgorithem_s(char *name,typeIntVectorFunction func, sit_dico_sort sitDico[], int ini, int mult,
                                int fin, int nTemp);
 
 void printAlgorithemAndSituation_s(alg_dico_sort algoritmos[]);
@@ -76,7 +76,9 @@ void ascendente(int v [], int n);
 void descendente (int v[], int n);
 
 
-char * initAlgorithems_m(alg_dico_heap algoritmos[]);
+char *initAlgorithems_m(alg_dico_heap algoritmos[]);
+char *initAlgorithems_s_m(alg_dico_sort *algoritmos);
+char *initAlgorithems_s_v(alg_dico_sort algoritmos[]);
 alg_dico_heap initAlgorithem_m(char *name,typeHeapFunction func, sit_dico_sort sitDico[], int ini, int mult,
                                int fin, int nTemp);
 /* Test Lectura Tiempos m */

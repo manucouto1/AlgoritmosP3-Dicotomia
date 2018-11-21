@@ -51,11 +51,11 @@ void leerTiempo_v(alg_dico_sort algoritmo, sit_dico_sort situacion, time_dico ti
 			t = (t - ti) / k;
 
 			// DONE > guardar tiempo con *
-			tiempos[i] = (time_dico){1,t};
+			tiempos[i] = (time_dico){1,0,t};
 			printf("\t\t > tiempo %f \n", tiempos[i].tiempo);
 		} else {
 			// DONE > guardar tiempo
-			tiempos[i] = (time_dico){0,t};
+			tiempos[i] = (time_dico){0,0,t};
 			printf("\t\t > tiempo %f \n", tiempos[i].tiempo);
 		}
 		i++;
@@ -153,7 +153,7 @@ void ord_rapida(int v[], int n) {
 /*
  * DONE - inicialización del los algoritmos de los que realizaremos el estudio
  */
-char *initAlgorithems_v(alg_dico_sort algoritmos[]){
+char *initAlgorithems_s_v(alg_dico_sort algoritmos[]){
 	// Esta parte la cambiariamos para cada problema a estudiar,
 	// por ejemplo si no hace falta ordenar no habria estas funciones
 	int i = 0;
@@ -167,8 +167,8 @@ char *initAlgorithems_v(alg_dico_sort algoritmos[]){
 	};
 
 	alg_dico_sort aux [NUM_ALGORITHEMS] = {
-			initAlgorithem_v("Insercion",ord_ins , situations, 500, 2, 32000, 7),
-			//initAlgorithem_v("Quicksort", ord_rapida, situations, 1000, 10, (int) pow(10,8), 6)
+			initAlgorithem_s("Insercion",ord_ins , situations, 500, 2, 32000, 7)
+			//,initAlgorithem_s("Quicksort", ord_rapida, situations, 1000, 10, (int) pow(10,8), 6)
 	};
 
 	memcpy(algoritmos, aux, NUM_ALGORITHEMS * sizeof(alg_dico_sort));

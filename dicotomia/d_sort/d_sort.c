@@ -7,7 +7,7 @@ sit_dico_sort initStudyCase_s(char *name, typeIntVectorFunction ini){
 	return caso;
 }
 
-alg_dico_sort initAlgorithem_v(char *name,typeIntVectorFunction func, sit_dico_sort *sitDico, int ini, int mult,
+alg_dico_sort initAlgorithem_s(char *name,typeIntVectorFunction func, sit_dico_sort *sitDico, int ini, int mult,
                         int fin, int nTemp){
 	int i;
 	alg_dico_sort algoritmo;
@@ -77,6 +77,7 @@ void printAlgorithemAndSituation_s(alg_dico_sort algoritmos[]){
 			printf("\t\t * situacion %s \n",algoritmos[i].situation[j].sit.sit_name);
 		}
 	}
+
 	printf("\n");
 }
 

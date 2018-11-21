@@ -366,7 +366,7 @@ void acotarComplejidad(sit_dico *sit, cota_t cotas[], int numCotas, int numValor
 	int succesSub = 0;
 
 	double err = 1.0;
-	double umbral = 0.01;
+	double umbral = 0.01; // acotar ordernacion y heap umbral 0.01
 	int pibSobre = 0;
 	int pibSub = numCotas - 1;
 	int pibAjusSobre = 0;

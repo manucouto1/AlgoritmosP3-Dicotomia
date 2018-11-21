@@ -45,7 +45,7 @@ int loadCachedTime_s(alg_dico_sort alg[], char *filePath) {
 	file = fopen(filePath, "r");
 
 	if (file != NULL) {
-		while (fgets(buff,1024,file)) {
+		while (fgets(buff,1024,file)&& i <= NUM_ALGORITHEMS) {
 			if(strchr(buff,'$')){
 				j = 0;
 				aux = strtok(buff,"$");

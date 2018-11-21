@@ -45,16 +45,17 @@ int loadCachedTime_h(alg_dico_hash alg[]) {
 	file = fopen(CACHE_FILE_NAME_H, "r");
 
 	if (file != NULL) {
-		while (fgets(buff,1024,file)) {
+		while (fgets(buff,1024,file)&& i <= NUM_ALGORITHEMS) {
 			if(strchr(buff,'$')){
 				j = 0;
 				aux = strtok(buff,"$");
+
 				strcpy(alg[i].alg.alg_name,aux);
 				aux = strtok(NULL,"$");
 				alg[i].alg.nTemp = (int)strtol(aux,NULL,10);
 				i++;
 			}
-			if(strchr(buff,'&')){
+			if(strchr(buff,'&')){ // TODO - testar si funciona bien cuando cambiamos el número de situaciones
 				k = 0;
 				aux = strtok(buff,"&");
 				strcpy(alg[i-1].situation[j].sit.sit_name,aux);

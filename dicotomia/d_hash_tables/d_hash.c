@@ -87,7 +87,6 @@ void mostrarCotas_h(alg_dico_hash algoritmo[]){
 
 void buscarCotas_h(alg_dico_hash algoritmos[], cota_t cotas[], int numCotas){
 	int i,j;
-
 	for(i = 0; i < NUM_ALGORITHEMS; i++){
 		printf("ALGORITMO -> %s \n",algoritmos[i].alg.alg_name);
 		for(j = 0; j < NUM_SITUATIONS; j++){
@@ -189,8 +188,8 @@ void lecturaTiempos_h(alg_dico_hash algoritmo[]){
 
 	printf(" - Leyendo tiempos \n");
 	printf(" ************************************ \n");
-	for(i = 0; i<2; i++){
-		for(j = 0; j<3; j++) {
+	for(i = 0; i<NUM_ALGORITHEMS; i++){
+		for(j = 0; j<NUM_SITUATIONS; j++) {
 			if(algoritmo[i].insertar_datos(algoritmo[i].datos,
 					&algoritmo[i].situation[j].diccionario,
 					algoritmo[i].func,
@@ -203,6 +202,5 @@ void lecturaTiempos_h(alg_dico_hash algoritmo[]){
 			}
 		}
 	}
-
 	//testTiempos_h(algoritmo);
 }

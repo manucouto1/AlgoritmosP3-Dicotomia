@@ -4,6 +4,8 @@
 #endif
 #define CACHE_FILE_NAME_M "../tmp/tmpCachedData_m.txt"
 
+#define CACHE_FILE_NAME_S_M "../tmp/tmpCachedData_s_m.txt"
+
 void leerTiempo_m(alg_dico_heap algoritmo, sit_dico_sort situacion, time_dico tiempos[], int *tamV){
 	double ta, tb, t, ti;
 	int k, n, i;
@@ -169,6 +171,15 @@ void testHeap(){
 
 }
 
+void ord_monticulo( int v[], int n){
+	int i;
+	monticulo heap;
+	crear_monticulo(v,n,&heap);
+	for(i=n; i>0; i--){
+		v[i] = eliminar_mayor(&heap);
+	}
+}
+
 char *initAlgorithems_m(alg_dico_heap algoritmos[]){
 	// Esta parte la cambiariamos para cada problema a estudiar,
 	// por ejemplo si no hace falta ordenar no habria estas funciones
@@ -176,6 +187,7 @@ char *initAlgorithems_m(alg_dico_heap algoritmos[]){
 	inicializar_semilla();
 	printf(" - Inicializando Algoritmos \n");
 	printf(" ************************************ \n");
+
 	sit_dico_sort situations[NUM_SITUATIONS] = {
 			initStudyCase_s("vector aleatorio", aleatorio),
 			initStudyCase_s("vector ascendente",ascendente),
@@ -183,11 +195,31 @@ char *initAlgorithems_m(alg_dico_heap algoritmos[]){
 	};
 
 	alg_dico_heap aux [NUM_ALGORITHEMS] = {
-			initAlgorithem_m("crear_monticulo", crear_monticulo, situations, 500, 2, 32000, 7),
-			//initAlgorithem_s("Quicksort", ord_rapida, situations, 1000, 10, (int) pow(10,8), 6)
+			initAlgorithem_m("crear_monticulo", crear_monticulo, situations, 1000, 2, 64000, 7),
+	};
+
+	memcpy(algoritmos, aux, NUM_ALGORITHEMS * sizeof(alg_dico_heap));
+	printf("\n");
+	return CACHE_FILE_NAME_M;
+}
+
+char *initAlgorithems_s_m(alg_dico_sort *algoritmos){
+	int i = 0;
+	inicializar_semilla();
+	printf(" - Inicializando Algoritmos \n");
+	printf(" ************************************ \n");
+
+	sit_dico_sort situations[NUM_SITUATIONS] = {
+			initStudyCase_s("vector aleatorio", aleatorio),
+			initStudyCase_s("vector ascendente",ascendente),
+			initStudyCase_s("vector descendente", descendente)
+	};
+
+	alg_dico_sort aux [NUM_ALGORITHEMS] = {
+			initAlgorithem_s("ord_monticulo", ord_monticulo, situations, 1000, 2, 64000, 7),
 	};
 
 	memcpy(algoritmos, aux, NUM_ALGORITHEMS * sizeof(alg_dico_sort));
 	printf("\n");
-	return CACHE_FILE_NAME_M;
+	return CACHE_FILE_NAME_S_M;
 }
