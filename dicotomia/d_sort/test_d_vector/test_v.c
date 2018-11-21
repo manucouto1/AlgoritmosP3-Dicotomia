@@ -3,8 +3,84 @@
 #include "../d_sort.h"
 #endif
 
+#define CACHE_FILE_NAME_S "../tmp/tmpCachedData_s.txt"
+
 #define UMBRAL 10
 /*Algoritmos de ordenación*/
+
+void leerTiempo_v(alg_dico_sort algoritmo, sit_dico_sort situacion, time_dico tiempos[], int *tamV){
+	double ta, tb, t, ti;
+	int k, n, i;
+	int *v;
+
+	typeIntVectorFunction ini = situacion.func;
+	typeIntVectorFunction ord = algoritmo.func;
+
+	int inicio = algoritmo.alg.ini;
+	int fin = algoritmo.alg.fin;
+	int mult = algoritmo.alg.mult;
+
+	i = 0;
+	printf("ALGORITMO > %s\n",algoritmo.alg.alg_name);
+	printf("\tSITUATION > %s\n",situacion.sit.sit_name);
+	for (n = inicio; n <= fin; n = n * mult) {
+		tamV[i]=n;
+		v = malloc(sizeof(int) * n);
+		ini(v, n);
+		ta = microsegundos();
+		ord(v, n);
+		tb = microsegundos();
+		t = tb - ta;
+
+		if (t < 500) {
+			ta = microsegundos();
+			for (k = 0; k < 1000; k++) {
+				ini(v, n);
+				ord(v, n);
+			}
+			tb = microsegundos();
+			t = tb - ta;
+
+			ta = microsegundos();
+			for (k = 0; k < 1000; k++) {
+				ini(v, n);
+			}
+			tb = microsegundos();
+
+			ti = tb - ta;
+			t = (t - ti) / k;
+
+			// DONE > guardar tiempo con *
+			tiempos[i] = (time_dico){1,t};
+			printf("\t\t > tiempo %f \n", tiempos[i].tiempo);
+		} else {
+			// DONE > guardar tiempo
+			tiempos[i] = (time_dico){0,t};
+			printf("\t\t > tiempo %f \n", tiempos[i].tiempo);
+		}
+		i++;
+		free(v);
+	}
+}
+
+void lecturaTiempos_v(alg_dico_sort algoritmos[]){
+	int i;
+	int j;
+
+	time_dico times[256];
+	printf(" - Leyendo tiempos \n");
+	printf(" ************************************ \n");
+
+	for(i = 0; i<NUM_ALGORITHEMS; i++) {
+		for (j = 0; j < NUM_SITUATIONS; j++) {
+			leerTiempo_v(algoritmos[i],
+			             algoritmos[i].situation[j],
+			             algoritmos[i].situation[j].sit.tiempos,
+			             algoritmos[i].situation[j].sit.valN);
+		}
+	}
+	//testTiempos_s(algoritmos);
+}
 
 void ord_ins (int v [], int n) {
 	int i, j, x;
@@ -77,7 +153,7 @@ void ord_rapida(int v[], int n) {
 /*
  * DONE - inicialización del los algoritmos de los que realizaremos el estudio
  */
-alg_dico_sort initAlgorithems_s(alg_dico_sort algoritmos[]){
+char *initAlgorithems_v(alg_dico_sort algoritmos[]){
 	// Esta parte la cambiariamos para cada problema a estudiar,
 	// por ejemplo si no hace falta ordenar no habria estas funciones
 	int i = 0;
@@ -91,10 +167,11 @@ alg_dico_sort initAlgorithems_s(alg_dico_sort algoritmos[]){
 	};
 
 	alg_dico_sort aux [NUM_ALGORITHEMS] = {
-			initAlgorithem_s("Insercion",ord_ins , situations, 500, 2, 32000, 7),
-			initAlgorithem_s("Quicksort", ord_rapida, situations, 1000, 10, (int) pow(10,8), 6)
+			initAlgorithem_v("Insercion",ord_ins , situations, 500, 2, 32000, 7),
+			//initAlgorithem_v("Quicksort", ord_rapida, situations, 1000, 10, (int) pow(10,8), 6)
 	};
 
 	memcpy(algoritmos, aux, NUM_ALGORITHEMS * sizeof(alg_dico_sort));
 	printf("\n");
+	return CACHE_FILE_NAME_S;
 }

@@ -4,7 +4,7 @@
 #include "dicotomia/d_hash_tables/persist_to_txt/readWriteData_h.h"
 
 
-void mideTiemposCalculaCotas_s(){
+void mideTiemposCalculaCotas_v(){
 	int nCotas;
 	funcion funcs[NUM_FUNCT];
 	alg_dico_sort algoritmos[NUM_ALGORITHEMS];
@@ -12,46 +12,47 @@ void mideTiemposCalculaCotas_s(){
 
 	initFuncs(funcs);
 	printFuncs(funcs);
-	initAlgorithems_s(algoritmos);
+	initAlgorithems_v(algoritmos);
 	initCotas(funcs, cotasEstudio, &nCotas);
 	sortCotas(cotasEstudio, &nCotas, 1000, 100000000);
 	printCotas(cotasEstudio, nCotas);
-	lecturaTiempos_s(algoritmos);
+	lecturaTiempos_v(algoritmos);
 	buscarCotas_s(algoritmos, cotasEstudio, nCotas);
 
 }
 
-void mideTiemposPersisteTxt_s(){
+void mideTiemposPersisteTxt_v(){
 	int nCotas;
+	char *filePath;
 	funcion funcs[NUM_FUNCT];
 	alg_dico_sort algoritmos[NUM_ALGORITHEMS];
 	cota_t *cotasEstudio = malloc(sizeof(cota_t)*100);
 
 	initFuncs(funcs);
 	printFuncs(funcs);
-	initAlgorithems_s(algoritmos);
+	filePath = initAlgorithems_v(algoritmos);
 	initCotas(funcs, cotasEstudio, &nCotas);
 	sortCotas(cotasEstudio, &nCotas, 1000, 100000000);
 	printCotas(cotasEstudio, nCotas);
-	lecturaTiempos_s(algoritmos);
-	cacheTimeData_s(algoritmos);
+	lecturaTiempos_v(algoritmos);
+	cacheTimeData_s(algoritmos,filePath);
 	free(cotasEstudio);
 }
 
-void leeTxtCalculaCotas_s(){
+void leeTxtCalculaCotas_v(){
 	int nCotas;
 	funcion funcs[NUM_FUNCT];
-
+	char *filePath;
 	alg_dico_sort algoritmos[NUM_ALGORITHEMS];
 	cota_t *cotasEstudio = malloc(sizeof(cota_t)*100);
 
 	initFuncs(funcs);
 	printFuncs(funcs);
-	initAlgorithems_s(algoritmos);
+	filePath = initAlgorithems_v(algoritmos);
 	initCotas(funcs, cotasEstudio, &nCotas);
 	sortCotas(cotasEstudio, &nCotas, 1000, 100000000);
 	printCotas(cotasEstudio, nCotas);
-	loadCachedTime_s(algoritmos);
+	loadCachedTime_s(algoritmos, filePath);
 	buscarCotas_s(algoritmos, cotasEstudio, nCotas);
 	free(cotasEstudio);
 }
@@ -144,6 +145,28 @@ void leeTxtCalculaCotas_h(){
 	free(cotasEstudio);
 }
 
+void mideTiemposCalculaCotas_m(){
+	int nCotas;
+	char * filePath;
+	funcion funcs[NUM_FUNCT];
+	alg_dico_heap algoritmos[NUM_ALGORITHEMS];
+	cota_t *cotasEstudio = malloc(sizeof(cota_t)*100);
+
+	initFuncs(funcs);
+	printFuncs(funcs);
+	initCotas(funcs, cotasEstudio, &nCotas);
+	sortCotas(cotasEstudio, &nCotas, 125, 16000);
+	printCotas(cotasEstudio, nCotas);
+
+	filePath = initAlgorithems_m(algoritmos);
+	printAlgorithemAndSituation_s((alg_dico_sort*)algoritmos);
+	//lecturaTiempos_m(algoritmos);
+	//cacheTimeData_s((alg_dico_sort*)algoritmos,filePath);
+	loadCachedTime_s((alg_dico_sort*)algoritmos,filePath);
+
+	buscarCotas_s((alg_dico_sort*)algoritmos,cotasEstudio,nCotas);
+}
+
 int main() {
 
 	//mideTiemposCalculaCotas_h();
@@ -154,7 +177,9 @@ int main() {
 	//mideTiemposPersisteTxt_h();
 	//leeTxtCalculaCotas_h();
 
-	testHeap();
+	//testHeap();
+
+	mideTiemposCalculaCotas_m();
 	return 0;
 
 }

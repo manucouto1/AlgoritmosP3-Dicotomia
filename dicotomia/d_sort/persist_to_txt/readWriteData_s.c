@@ -1,6 +1,6 @@
 #include "readWriteData_s.h"
 
-int cacheTimeData_s(alg_dico_sort alg[]) {
+int cacheTimeData_s(alg_dico_sort alg[], char *filePath) {
 	int i;
 	int j;
 	int k;
@@ -8,7 +8,7 @@ int cacheTimeData_s(alg_dico_sort alg[]) {
 
 	FILE *file;
 
-	file = fopen(CACHE_FILE_NAME_S, "w");
+	file = fopen(filePath, "w");
 
 	if (file != NULL){
 		for (i = 0; i < NUM_ALGORITHEMS; i++) {
@@ -34,7 +34,7 @@ int cacheTimeData_s(alg_dico_sort alg[]) {
 	return 0;
 }
 
-int loadCachedTime_s(alg_dico_sort alg[]) {
+int loadCachedTime_s(alg_dico_sort alg[], char *filePath) {
 	int i = 0, j = 0, k = 0;
 	FILE *file;
 	char buff[1024];
@@ -42,7 +42,7 @@ int loadCachedTime_s(alg_dico_sort alg[]) {
 	char *aux;
 	char *aux2;
 
-	file = fopen(CACHE_FILE_NAME_S, "r");
+	file = fopen(filePath, "r");
 
 	if (file != NULL) {
 		while (fgets(buff,1024,file)) {

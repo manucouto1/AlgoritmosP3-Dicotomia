@@ -231,11 +231,11 @@ alg_dico_hash initAlgorithems_h(alg_dico_hash algoritmos[]){
 					buscar_cerrada,
 					insertarDatos,
 					situations1, 125, 16000, 2, 8),
-			initAlgorithem_h("DISPERSION B", datos,
+			/*initAlgorithem_h("DISPERSION B", datos,
 					dispersionB,
 					buscar_cerrada,
 					insertarDatos,
-					situations2, 125, 16000, 2, 8)
+					situations2, 125, 16000, 2, 8)*/
 	};
 
 	memcpy(algoritmos, aux, NUM_ALGORITHEMS * sizeof(alg_dico_hash));
@@ -291,9 +291,9 @@ alg_dico_hash initAlgorithems_h_manual(alg_dico_hash algoritmos[]){
 			initAlgorithem_h("DISPERSION A", datos, dispersionA,
 			                 buscar_cerrada, insertarDatos,
 			                 situations1, 125, 16000, 2, 8),
-			initAlgorithem_h("DISPERSION B", datos, dispersionB,
+		/*	initAlgorithem_h("DISPERSION B", datos, dispersionB,
 			                 buscar_cerrada, insertarDatos,
-			                 situations2, 125, 16000, 2, 8)
+			                 situations2, 125, 16000, 2, 8) */
 	};
 
 	memcpy(algoritmos, aux, NUM_ALGORITHEMS * sizeof(alg_dico_hash));

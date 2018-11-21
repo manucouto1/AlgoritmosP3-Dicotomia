@@ -17,7 +17,7 @@
 
 #define NUM_SITUATIONS 3
 #define NUM_FUNCT 3
-#define NUM_ALGORITHEMS 2
+#define NUM_ALGORITHEMS 1
 
 
 /* Registros GENERICO DICOTOMIA */
