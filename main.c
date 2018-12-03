@@ -150,7 +150,6 @@ void mideTiemposCalculaCotas_m(){
 	char * filePath;
 	funcion funcs[NUM_FUNCT];
 	alg_dico_heap algoritmos[NUM_ALGORITHEMS];
-	alg_dico_sort algritms[NUM_ALGORITHEMS];
 	cota_t *cotasEstudio = malloc(sizeof(cota_t)*100);
 
 	initFuncs(funcs);
@@ -165,12 +164,12 @@ void mideTiemposCalculaCotas_m(){
 	//cacheTimeData_s((alg_dico_sort*)algoritmos,filePath);
 	//loadCachedTime_s((alg_dico_sort*)algoritmos,filePath);
 
-	filePath = initAlgorithems_s_m(algritms);
-	printAlgorithemAndSituation_s(algritms);
-	lecturaTiempos_v(algritms);
-	buscarCotas_s(algritms,cotasEstudio,nCotas);
+	filePath = initAlgorithems_m(algoritmos);
+	printAlgorithemAndSituation_s((alg_dico_sort*)algoritmos);
+	//lecturaTiempos_v(algritms);
+	loadCachedTime_s((alg_dico_sort*)algoritmos,filePath);
+	buscarCotas_s((alg_dico_sort*)algoritmos,cotasEstudio,nCotas);
 
-	//buscarCotas_s((alg_dico_sort*)algoritmos,cotasEstudio,nCotas);
 }
 
 void mideTiemposCalculaCotas_S_m(){
@@ -205,7 +204,7 @@ int main() {
 
 	//testHeap();
 
-	mideTiemposCalculaCotas_S_m();
+	mideTiemposCalculaCotas_m();
 	return 0;
 
 }
